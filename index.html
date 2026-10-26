@@ -285,11 +285,12 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             </div>
         </section>
 
-        <!-- TAB 5: JURNAL MENGAJAR -->
+        <!-- TAB 5: JURNAL MENGAJAR (DENGAN FILTER, EDIT, EKSPOR/IMPOR EXCEL) -->
         <section id="tab-jurnal" class="tab-pane hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Form Tambah Jurnal -->
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
-                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Tambah Jurnal</h3>
+                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Tambah Jurnal Mengajar</h3>
                     <div>
                         <label class="text-xs font-medium text-slate-600">Tanggal</label>
                         <input type="date" id="journal-date" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300">
@@ -297,29 +298,42 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="text-xs font-medium text-slate-600">Rombel</label>
-                            <select id="journal-rombel" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></select>
+                            <select id="journal-rombel" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300 bg-white"></select>
                         </div>
                         <div>
                             <label class="text-xs font-medium text-slate-600">Mapel</label>
-                            <select id="journal-mapel" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></select>
+                            <select id="journal-mapel" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300 bg-white"></select>
                         </div>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-slate-600">Materi / Topik</label>
-                        <textarea id="journal-topic" rows="3" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
+                        <label class="text-xs font-medium text-slate-600">Materi / Topik Pembahasan</label>
+                        <textarea id="journal-topic" rows="3" placeholder="Uraikan materi pembelajaran..." class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
                     </div>
                     <button onclick="window.saveJournalEntry()" class="w-full py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">Simpan Jurnal</button>
                 </div>
+
+                <!-- Riwayat Jurnal dengan Filter & Ekspor/Impor -->
                 <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
-                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Riwayat Jurnal</h3>
-                    <div id="journal-list-container" class="space-y-3 max-h-[400px] overflow-y-auto text-xs text-slate-500">
-                        <p>Belum ada catatan jurnal.</p>
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
+                        <h3 class="font-bold text-sm text-slate-800">Riwayat Jurnal Pembelajaran</h3>
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <select id="filter-jurnal-rombel" onchange="window.renderJournalList()" class="text-xs p-1 rounded-lg border border-slate-300 bg-white font-medium"></select>
+                            <select id="filter-jurnal-mapel" onchange="window.renderJournalList()" class="text-xs p-1 rounded-lg border border-slate-300 bg-white font-medium"></select>
+                            <button onclick="window.exportJournalCSV()" title="Ekspor ke Excel/CSV" class="px-2 py-1 rounded-lg bg-slate-100 border text-slate-700 text-xs font-semibold hover:bg-slate-200">📥 Ekspor</button>
+                            <label title="Impor dari Excel/CSV" class="px-2 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold cursor-pointer hover:bg-indigo-100">
+                                📤 Impor
+                                <input type="file" id="import-journal-csv" accept=".csv" class="hidden" onchange="window.importJournalCSV(event)">
+                            </label>
+                        </div>
+                    </div>
+                    <div id="journal-list-container" class="space-y-3 max-h-[450px] overflow-y-auto text-xs text-slate-600 custom-scrollbar">
+                        <p class="text-slate-400 italic">Belum ada catatan jurnal.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 6: JADWAL MENGAJAR (INTERAKTIF) -->
+        <!-- TAB 6: JADWAL MENGAJAR -->
         <section id="tab-jadwal" class="tab-pane hidden space-y-4">
             <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
                 <div class="flex items-center justify-between border-b pb-2">
@@ -956,6 +970,20 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 }
             });
 
+            // Filter Jurnal Dropdowns
+            const fJRom = document.getElementById('filter-jurnal-rombel');
+            if (fJRom) {
+                const prev = fJRom.value;
+                fJRom.innerHTML = `<option value="">Semua Rombel</option>` + rombelOpts;
+                if (inst.rombels.includes(prev)) fJRom.value = prev;
+            }
+            const fJMap = document.getElementById('filter-jurnal-mapel');
+            if (fJMap) {
+                const prev = fJMap.value;
+                fJMap.innerHTML = `<option value="">Semua Mapel</option>` + mapelOpts;
+                if (inst.mapels.includes(prev)) fJMap.value = prev;
+            }
+
             const filterBMapel = document.getElementById('filter-behavior-mapel');
             if (filterBMapel) {
                 const prev = filterBMapel.value;
@@ -1180,24 +1208,129 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             window.loadAttendanceSheet();
         };
 
-        // JURNAL MENGAJAR
-        function renderJournalList() {
+        // JURNAL MENGAJAR (DENGAN FILTER, EDIT, EKSPOR & IMPOR CSV)
+        window.renderJournalList = function() {
             const inst = appData[appData.currentInst];
+            const fRom = document.getElementById('filter-jurnal-rombel')?.value || '';
+            const fMap = document.getElementById('filter-jurnal-mapel')?.value || '';
             const container = document.getElementById('journal-list-container');
-            container.innerHTML = inst.journals.length === 0 ? '<p>Belum ada catatan jurnal.</p>' :
-                inst.journals.map(j => `<div class="p-2 border rounded bg-slate-50"><strong>${j.date}</strong> - ${j.rombel} (${j.mapel}): ${j.topic}</div>`).join('');
-        }
+            if (!container) return;
+
+            let filtered = inst.journals || [];
+            if (fRom) filtered = filtered.filter(j => j.rombel === fRom);
+            if (fMap) filtered = filtered.filter(j => j.mapel === fMap);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 italic p-2">Belum ada catatan jurnal mengajar yang sesuai filter.</p>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(j => `
+                <div class="p-3 border rounded-xl bg-slate-50 space-y-1 relative group">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-emerald-800">${j.date} | Rombel ${j.rombel} (${j.mapel})</span>
+                        <div class="space-x-1">
+                            <button onclick="window.editJournalEntry('${j.id}')" class="text-blue-600 hover:underline font-semibold text-[11px]">Edit</button>
+                            <button onclick="window.deleteJournalEntry('${j.id}')" class="text-red-600 hover:underline font-semibold text-[11px]">Hapus</button>
+                        </div>
+                    </div>
+                    <p class="text-slate-700">${j.topic}</p>
+                </div>
+            `).join('');
+        };
+
         window.saveJournalEntry = function() {
             const date = document.getElementById('journal-date').value;
             const rombel = document.getElementById('journal-rombel').value;
             const mapel = document.getElementById('journal-mapel').value;
-            const topic = document.getElementById('journal-topic').value;
-            if (!topic) return alert('Materi wajib diisi');
-            appData[appData.currentInst].journals.unshift({ date, rombel, mapel, topic });
+            const topic = document.getElementById('journal-topic').value.trim();
+            if (!topic) return alert('Materi / topik pembelajaran wajib diisi!');
+
+            const inst = appData[appData.currentInst];
+            if (!inst.journals) inst.journals = [];
+
+            inst.journals.unshift({
+                id: 'j_' + Date.now(),
+                date,
+                rombel,
+                mapel,
+                topic
+            });
+
             saveDatabase();
             document.getElementById('journal-topic').value = '';
-            renderJournalList();
-            alert('Jurnal berhasil disimpan!');
+            window.renderJournalList();
+            renderDashboard();
+            alert('Jurnal berhasil disimpan & disinkronkan ke Cloud!');
+        };
+
+        window.editJournalEntry = function(id) {
+            const inst = appData[appData.currentInst];
+            const j = (inst.journals || []).find(x => x.id === id);
+            if (!j) return;
+            const newTopic = prompt('Ubah Materi / Topik Pembelajaran:', j.topic);
+            if (newTopic === null) return;
+            j.topic = newTopic.trim() || j.topic;
+            saveDatabase();
+            window.renderJournalList();
+            alert('Jurnal berhasil diperbarui!');
+        };
+
+        window.deleteJournalEntry = function(id) {
+            if (!confirm('Yakin ingin menghapus catatan jurnal ini?')) return;
+            const inst = appData[appData.currentInst];
+            inst.journals = (inst.journals || []).filter(j => j.id !== id);
+            saveDatabase();
+            window.renderJournalList();
+            renderDashboard();
+        };
+
+        window.exportJournalCSV = function() {
+            const inst = appData[appData.currentInst];
+            let csv = "Tanggal,Rombel,Mata Pelajaran,Materi Pembahasan\n";
+            (inst.journals || []).forEach(j => {
+                csv += `"${j.date}","${j.rombel}","${j.mapel}","${j.topic.replace(/"/g, '""')}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `Jurnal_Mengajar_${appData.currentInst}_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        window.importJournalCSV = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const lines = evt.target.result.split('\n');
+                const inst = appData[appData.currentInst];
+                if (!inst.journals) inst.journals = [];
+                let added = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    // Sederhana parsing CSV
+                    const parts = line.split(',').map(p => p.replace(/"/g, '').trim());
+                    if (parts.length >= 4 && parts[0]) {
+                        inst.journals.push({
+                            id: 'j_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                            date: parts[0],
+                            rombel: parts[1],
+                            mapel: parts[2],
+                            topic: parts.slice(3).join(',')
+                        });
+                        added++;
+                    }
+                }
+                saveDatabase();
+                window.renderJournalList();
+                renderDashboard();
+                alert(`Berhasil mengimpor ${added} catatan jurnal ke Cloud!`);
+            };
+            reader.readAsText(file);
         };
 
         // JADWAL MENGAJAR (INTERAKTIF)
