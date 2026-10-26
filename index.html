@@ -1623,9 +1623,16 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             renderSchedules();
         };
 
-        // JURNAL SIKAP & KARAKTER
+        // JURNAL SIKAP & KARAKTER (DENGAN AUTO-ID PENGAMAN UNTUK EDIT/HAPUS)
         window.renderBehaviors = function() {
             const inst = appData[appData.currentInst];
+            if (!inst) return;
+            
+            // Auto-assign ID jika ada catatan lama yang belum ber-ID
+            (inst.behaviors || []).forEach((b, i) => {
+                if (!b.id) b.id = 'b_legacy_' + i + '_' + Date.now();
+            });
+
             const fRom = document.getElementById('filter-behavior-rombel')?.value || '';
             const fMap = document.getElementById('filter-behavior-mapel')?.value || '';
             const container = document.getElementById('behavior-list-container');
@@ -1671,7 +1678,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
 
             if (!inst.behaviors) inst.behaviors = [];
             inst.behaviors.unshift({
-                id: 'b_' + Date.now(),
+                id: 'b_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
                 date,
                 studentId: s.id,
                 name: `${s.name} (${s.rombel})`,
@@ -1690,7 +1697,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
         window.editBehaviorEntry = function(id) {
             const inst = appData[appData.currentInst];
             const b = (inst.behaviors || []).find(x => x.id === id);
-            if (!b) return;
+            if (!b) return alert('Data catatan tidak ditemukan.');
             const newDesc = prompt('Ubah Deskripsi Catatan Karakter:', b.desc);
             if (newDesc === null) return;
             b.desc = newDesc.trim() || b.desc;
@@ -1752,164 +1759,6 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 alert(`Berhasil mengimpor ${added} catatan karakter ke Cloud!`);
             };
             reader.readAsText(file);
-        };
-
-        // MASTER DATA SISWA
-        function renderMasterLists() {
-            const inst = appData[appData.currentInst];
-            if (!inst) return;
-            
-            const rList = document.getElementById('master-rombel-list');
-            if (rList) {
-                rList.innerHTML = (inst.rombels || []).map(r => `
-                    <li class="flex items-center justify-between p-1.5 bg-white rounded border border-slate-200">
-                        <span class="font-medium text-slate-700">${r}</span>
-                        <button onclick="window.deleteRombel('${r}')" class="text-red-500 hover:text-red-700 font-bold px-1" title="Hapus Rombel">&times;</button>
-                    </li>
-                `).join('');
-            }
-
-            const mList = document.getElementById('master-mapel-list');
-            if (mList) {
-                mList.innerHTML = (inst.mapels || []).map(m => `
-                    <li class="flex items-center justify-between p-1.5 bg-white rounded border border-slate-200">
-                        <span class="font-medium text-slate-700">${m}</span>
-                        <button onclick="window.deleteMapel('${m}')" class="text-red-500 hover:text-red-700 font-bold px-1" title="Hapus Mapel">&times;</button>
-                    </li>
-                `).join('');
-            }
-
-            window.renderMasterStudentTable();
-        }
-
-        window.renderMasterStudentTable = function() {
-            const filterEl = document.getElementById('filter-master-rombel');
-            const filterRombel = filterEl ? filterEl.value : '';
-            const inst = appData[appData.currentInst];
-            if (!inst || !inst.students) return;
-            const filtered = filterRombel ? inst.students.filter(s => s.rombel === filterRombel) : inst.students;
-            const badge = document.getElementById('student-count-badge');
-            if (badge) badge.textContent = `${filtered.length} Siswa (Total Madrasah: ${inst.students.length})`;
-
-            const tbody = document.getElementById('student-roster-tbody');
-            if (!tbody) return;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Belum ada siswa di rombel ini.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map((s, idx) => `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-2.5 text-center text-slate-400 font-medium">${idx + 1}</td>
-                    <td class="p-2.5 font-semibold text-emerald-800 cursor-pointer hover:underline" onclick="window.openDossierModal('${s.id}')">
-                        👤 ${s.name}
-                    </td>
-                    <td class="p-2.5 text-center text-slate-600">${s.nickname || '-'}</td>
-                    <td class="p-2.5 text-center font-medium text-slate-700">${s.rombel}</td>
-                    <td class="p-2.5 text-center space-x-2">
-                        <button onclick="window.editStudentPrompt('${s.id}')" class="text-blue-600 hover:underline font-semibold text-xs">Edit</button>
-                        <button onclick="window.deleteStudent('${s.id}')" class="text-red-600 hover:underline font-semibold text-xs">Hapus</button>
-                    </td>
-                </tr>
-            `).join('');
-        };
-
-        window.addNewRombel = function() {
-            const input = document.getElementById('new-rombel-input');
-            const val = input.value.trim();
-            if (!val) return;
-            const inst = appData[appData.currentInst];
-            if (!inst.rombels.includes(val)) {
-                inst.rombels.push(val);
-                saveDatabase();
-                input.value = '';
-                populateDropdowns();
-                renderMasterLists();
-            }
-        };
-
-        window.addNewMapel = function() {
-            const input = document.getElementById('new-mapel-input');
-            const val = input.value.trim();
-            if (!val) return;
-            const inst = appData[appData.currentInst];
-            if (!inst.mapels.includes(val)) {
-                inst.mapels.push(val);
-                if (!inst.kkms) inst.kkms = {};
-                inst.kkms[val] = 75;
-                saveDatabase();
-                input.value = '';
-                populateDropdowns();
-                renderMasterLists();
-            }
-        };
-
-        window.deleteRombel = function(rombelName) {
-            if (!confirm(`Hapus rombel ${rombelName}? Siswa di rombel ini tidak akan terhapus otomatis.`)) return;
-            const inst = appData[appData.currentInst];
-            inst.rombels = inst.rombels.filter(r => r !== rombelName);
-            saveDatabase();
-            populateDropdowns();
-            renderMasterLists();
-        };
-
-        window.deleteMapel = function(mapelName) {
-            if (!confirm(`Hapus mata pelajaran ${mapelName}?`)) return;
-            const inst = appData[appData.currentInst];
-            inst.mapels = inst.mapels.filter(m => m !== mapelName);
-            saveDatabase();
-            populateDropdowns();
-            renderMasterLists();
-        };
-
-        window.deleteStudent = function(sId) {
-            if (!confirm('Yakin ingin menghapus data siswa ini?')) return;
-            const inst = appData[appData.currentInst];
-            inst.students = inst.students.filter(s => s.id !== sId);
-            saveDatabase();
-            window.renderMasterStudentTable();
-            populateDropdowns();
-            renderDashboard();
-        };
-
-        window.editStudentPrompt = function(sId) {
-            const inst = appData[appData.currentInst];
-            const s = inst.students.find(x => x.id === sId);
-            if (!s) return;
-            const newName = prompt('Ubah Nama Lengkap:', s.name);
-            if (newName === null) return;
-            const newNick = prompt('Ubah Nama Panggilan:', s.nickname || '');
-            if (newNick === null) return;
-            
-            s.name = newName.trim() || s.name;
-            s.nickname = newNick.trim() || s.nickname;
-            saveDatabase();
-            window.renderMasterStudentTable();
-            populateDropdowns();
-        };
-
-        window.openAddStudentModal = function() {
-            document.getElementById('add-student-modal').classList.remove('hidden');
-        };
-        window.closeAddStudentModal = function() {
-            document.getElementById('add-student-modal').classList.add('hidden');
-        };
-        window.saveNewStudent = function() {
-            const name = document.getElementById('new-student-name').value.trim();
-            const nickname = document.getElementById('new-student-nickname').value.trim();
-            const rombel = document.getElementById('new-student-rombel').value;
-            if (!name) return alert('Nama siswa wajib diisi');
-            const newId = 's_' + Date.now();
-            appData[appData.currentInst].students.push({ id: newId, name, nickname, rombel });
-            saveDatabase();
-            document.getElementById('new-student-name').value = '';
-            document.getElementById('new-student-nickname').value = '';
-            window.closeAddStudentModal();
-            window.renderMasterStudentTable();
-            populateDropdowns();
-            renderDashboard();
-            alert('Siswa berhasil ditambahkan & disinkronkan ke Cloud!');
         };
 
         // DOSSIER / PORTOFOLIO LENGKAP SISWA
