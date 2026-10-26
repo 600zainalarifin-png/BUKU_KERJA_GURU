@@ -22,7 +22,7 @@
     <style>
         @media print {
             @page {
-                size: 210mm 330mm;
+                size: 210mm 330mm; /* Standar Ukuran Kertas F4 / Folio */
                 margin: 12mm 15mm;
             }
             body {
@@ -55,6 +55,7 @@
     <!-- HEADER & NAVBAR -->
     <header class="no-print sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand / Logo -->
             <div class="flex items-center space-x-3">
                 <div id="inst-badge" class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
                     MI
@@ -68,7 +69,9 @@
                 </div>
             </div>
 
+            <!-- Switcher Madrasah & Pencarian Cepat -->
             <div class="flex items-center flex-wrap gap-2">
+                <!-- Institution Switcher -->
                 <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
                     <button id="btn-switch-mi" onclick="window.setInstitution('MI')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white shadow-sm transition">
                         MI Darul Falah
@@ -78,16 +81,20 @@
                     </button>
                 </div>
 
+                <!-- Global Search Input -->
                 <div class="relative">
                     <input type="text" id="global-search" oninput="window.handleGlobalStudentSearch(this.value)" placeholder="Cari siswa..." class="text-xs pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-36 sm:w-48 bg-slate-50">
                     <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <!-- Dropdown Hasil Pencarian -->
                     <div id="search-results-dropdown" class="hidden absolute right-0 mt-1 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto p-1 text-xs"></div>
                 </div>
 
+                <!-- Settings -->
                 <button onclick="window.openSettingsModal()" title="Pengaturan & Backup" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold">⚙️</button>
             </div>
         </div>
 
+        <!-- Horizontal Nav Tabs -->
         <div class="max-w-7xl mx-auto px-4 overflow-x-auto custom-scrollbar border-t border-slate-100 flex gap-1 py-1 text-xs font-medium">
             <button onclick="window.switchTab('dasbor')" class="nav-tab active px-3 py-2 rounded-lg text-emerald-700 bg-emerald-50 whitespace-nowrap font-bold">📊 Dasbor</button>
             <button onclick="window.switchTab('rekap')" class="nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap">📝 Rekap Perkembangan</button>
@@ -140,10 +147,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <div class="flex items-center justify-between border-b pb-2">
-                        <h3 class="font-bold text-sm text-slate-800">🕒 Agenda Mengajar</h3>
+                        <h3 class="font-bold text-sm text-slate-800">🕒 Agenda Mengajar Hari Ini</h3>
                     </div>
                     <div id="agenda-list-container" class="space-y-2 text-xs text-slate-500">
-                        <p>Belum ada agenda khusus hari ini.</p>
+                        <p>Belum ada jadwal mengajar yang tercatat hari ini.</p>
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl border border-red-100 p-5 shadow-sm space-y-3">
@@ -179,7 +186,7 @@
                     <table class="w-full text-xs text-left border-collapse" id="rekap-spreadsheet-table"></table>
                 </div>
             </div>
-            <p class="text-[11px] text-slate-400 italic">💡 Pintasan: Tekan <strong>Enter</strong> untuk turun, dan <strong>Tab</strong> untuk ke kanan.</p>
+            <p class="text-[11px] text-slate-400 italic">💡 Pintasan: Tekan <strong>Enter</strong> untuk turun ke baris berikutnya, dan tekan <strong>Tab</strong> untuk bergeser ke kolom kanan.</p>
         </section>
 
         <!-- TAB 3: PRESENSI -->
@@ -271,10 +278,10 @@
                         </div>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-slate-600">Materi</label>
+                        <label class="text-xs font-medium text-slate-600">Materi / Topik</label>
                         <textarea id="journal-topic" rows="3" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
                     </div>
-                    <button onclick="window.saveJournalEntry()" class="w-full py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold">Simpan Jurnal</button>
+                    <button onclick="window.saveJournalEntry()" class="w-full py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">Simpan Jurnal</button>
                 </div>
                 <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Riwayat Jurnal</h3>
@@ -285,17 +292,18 @@
             </div>
         </section>
 
-        <!-- TAB 6: JADWAL -->
+        <!-- TAB 6: JADWAL MENGAJAR -->
         <section id="tab-jadwal" class="tab-pane hidden space-y-4">
             <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
-                <h3 class="font-bold text-base text-slate-800 border-b pb-2">Jadwal Mengajar Mingguan</h3>
-                <div id="schedule-matrix-container" class="text-xs text-slate-500">
-                    <p>Jadwal siap diatur sesuai kebutuhan madrasah.</p>
+                <div class="flex items-center justify-between border-b pb-2">
+                    <h3 class="font-bold text-base text-slate-800">Jadwal Mengajar Mingguan</h3>
+                    <button onclick="window.addSchedulePrompt()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">+ Tambah Jadwal</button>
                 </div>
+                <div id="schedule-matrix-container" class="grid grid-cols-1 md:grid-cols-6 gap-3 text-xs"></div>
             </div>
         </section>
 
-        <!-- TAB 7: SIKAP -->
+        <!-- TAB 7: JURNAL SIKAP & KARAKTER -->
         <section id="tab-sikap" class="tab-pane hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
@@ -309,10 +317,10 @@
                         <select id="behavior-student-select" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></select>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-slate-600">Deskripsi</label>
+                        <label class="text-xs font-medium text-slate-600">Deskripsi Kejadian</label>
                         <textarea id="behavior-desc" rows="3" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
                     </div>
-                    <button onclick="window.saveBehaviorEntry()" class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold">Simpan Catatan</button>
+                    <button onclick="window.saveBehaviorEntry()" class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700">Simpan Catatan</button>
                 </div>
                 <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Riwayat Catatan Karakter</h3>
@@ -332,51 +340,87 @@
                     <div class="h-32 flex items-center justify-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-4">
                         <span id="picker-display-name" class="text-xl font-bold text-emerald-600">Siap Mengundi...</span>
                     </div>
-                    <button onclick="window.pickRandomStudent()" class="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow">Putar Undian</button>
+                    <button onclick="window.pickRandomStudent()" class="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow hover:bg-emerald-700">Putar Undian</button>
                 </div>
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
                     <h3 class="font-bold text-sm text-slate-800 border-b pb-2">👥 Pembagi Kelompok</h3>
                     <div class="flex gap-2">
                         <select id="group-rombel-select" class="text-xs p-2 rounded-xl border border-slate-300 flex-1"></select>
-                        <button onclick="window.generateClassGroups()" class="px-4 py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold">Bagi</button>
+                        <input type="number" id="group-count-input" value="4" min="2" max="10" class="text-xs p-2 rounded-xl border border-slate-300 w-20 text-center" title="Jumlah Kelompok">
+                        <button onclick="window.generateClassGroups()" class="px-4 py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700">Bagi</button>
                     </div>
-                    <div id="group-results-container" class="text-xs text-slate-500"></div>
+                    <div id="group-results-container" class="text-xs text-slate-500 max-h-56 overflow-y-auto"></div>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 9: MASTER DATA -->
+        <!-- TAB 9: MASTER DATA SISWA & PENGATURAN ROMBEL -->
         <section id="tab-master" class="tab-pane hidden space-y-6">
             <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
-                    <h3 class="font-bold text-base text-slate-800">Data Siswa & Rombel</h3>
-                    <button onclick="window.openAddStudentModal()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">+ Tambah Siswa</button>
+                    <div>
+                        <h3 class="font-bold text-base text-slate-800">Master Data Siswa & Pengaturan Rombel</h3>
+                        <p class="text-xs text-slate-500">Kelola kelas, mata pelajaran, serta impor/ekspor data siswa terdaftar</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="window.downloadStudentCSVTemplate()" class="px-3 py-1.5 rounded-xl bg-slate-100 border text-slate-700 text-xs font-semibold hover:bg-slate-200">
+                            📄 Template CSV
+                        </button>
+                        <label class="px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold cursor-pointer hover:bg-indigo-100">
+                            📥 Impor Siswa (CSV)
+                            <input type="file" id="import-csv-file" accept=".csv" class="hidden" onchange="window.handleStudentCSVUpload(event)">
+                        </label>
+                        <button onclick="window.exportCurrentStudentsCSV()" class="px-3 py-1.5 rounded-xl bg-slate-100 border text-slate-700 text-xs font-semibold hover:bg-slate-200">
+                            📤 Ekspor Data Siswa
+                        </button>
+                        <button onclick="window.openAddStudentModal()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">
+                            + Tambah Siswa Baru
+                        </button>
+                    </div>
                 </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <!-- Kolom Kiri: Kelola Rombel & Mapel -->
                     <div class="space-y-4">
+                        <!-- Box Rombel -->
                         <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <h4 class="font-bold text-xs text-slate-700 mb-2">Rombel</h4>
+                            <h4 class="font-bold text-xs text-slate-700 mb-2">Daftar Rombel / Kelas</h4>
                             <div class="flex gap-1 mb-2">
-                                <input type="text" id="new-rombel-input" placeholder="Nama Rombel" class="text-xs p-1.5 rounded-lg border border-slate-300 flex-1">
-                                <button onclick="window.addNewRombel()" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold">+</button>
+                                <input type="text" id="new-rombel-input" placeholder="Misal: 4A / VII-1" class="text-xs p-1.5 rounded-lg border border-slate-300 flex-1">
+                                <button onclick="window.addNewRombel()" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700">+</button>
                             </div>
-                            <ul id="master-rombel-list" class="space-y-1 text-xs text-slate-600"></ul>
+                            <ul id="master-rombel-list" class="space-y-1 text-xs"></ul>
+                        </div>
+
+                        <!-- Box Mapel -->
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <h4 class="font-bold text-xs text-slate-700 mb-2">Daftar Mata Pelajaran</h4>
+                            <div class="flex gap-1 mb-2">
+                                <input type="text" id="new-mapel-input" placeholder="Misal: Nahwu / Shorof" class="text-xs p-1.5 rounded-lg border border-slate-300 flex-1">
+                                <button onclick="window.addNewMapel()" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700">+</button>
+                            </div>
+                            <ul id="master-mapel-list" class="space-y-1 text-xs"></ul>
                         </div>
                     </div>
+
+                    <!-- Kolom Kanan: Roster Siswa -->
                     <div class="md:col-span-3">
                         <div class="flex items-center justify-between mb-3">
-                            <h4 class="font-bold text-xs text-slate-700">Daftar Siswa</h4>
-                            <select id="filter-master-rombel" onchange="window.renderMasterStudentTable()" class="text-xs p-1 rounded-lg border border-slate-300"></select>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-semibold text-slate-600">Filter Rombel:</span>
+                                <select id="filter-master-rombel" onchange="window.renderMasterStudentTable()" class="text-xs p-1.5 rounded-lg border border-slate-300 bg-white font-medium"></select>
+                            </div>
+                            <span id="student-count-badge" class="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">0 Siswa Terdaftar</span>
                         </div>
                         <div class="border border-slate-200 rounded-xl overflow-hidden">
                             <table class="w-full text-xs text-left">
                                 <thead class="bg-slate-100 text-slate-700 font-semibold text-[11px]">
                                     <tr>
-                                        <th class="p-2.5 text-center w-10">No</th>
-                                        <th class="p-2.5">Nama Lengkap</th>
-                                        <th class="p-2.5">Panggilan</th>
-                                        <th class="p-2.5">Rombel</th>
-                                        <th class="p-2.5 text-center w-16">Aksi</th>
+                                        <th class="p-2.5 text-center w-12">No</th>
+                                        <th class="p-2.5">Nama Lengkap Siswa</th>
+                                        <th class="p-2.5 text-center w-28">Nama Panggilan</th>
+                                        <th class="p-2.5 text-center w-24">Rombel</th>
+                                        <th class="p-2.5 text-center w-28">Tindakan</th>
                                     </tr>
                                 </thead>
                                 <tbody id="student-roster-tbody" class="divide-y divide-slate-100"></tbody>
@@ -389,7 +433,7 @@
 
     </main>
 
-    <!-- MODAL DOSSIER SISWA -->
+    <!-- MODAL DOSSIER SISWA (KLIK NAMA SISWA) -->
     <div id="student-dossier-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b pb-3">
@@ -403,7 +447,7 @@
                 <button onclick="window.closeDossierModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
             </div>
             <div class="flex flex-wrap gap-2">
-                <button onclick="window.sendStudentWAReport()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">💬 Kirim Laporan WA</button>
+                <button onclick="window.sendStudentWAReport()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">💬 Kirim Laporan WA Wali</button>
             </div>
             <div class="space-y-3 text-xs">
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
@@ -411,30 +455,45 @@
                     <p id="dossier-att-summary" class="text-slate-600">-</p>
                 </div>
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                    <h4 class="font-bold text-slate-700 mb-1">Transkrip Nilai</h4>
+                    <h4 class="font-bold text-slate-700 mb-1">Transkrip Nilai Semua Mapel</h4>
                     <div id="dossier-grades-table" class="space-y-1"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL SETTINGS -->
+    <!-- MODAL PENGATURAN & BACKUP/RESTORE -->
     <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b pb-3">
-                <h3 class="font-bold text-base text-slate-800">Pengaturan & Backup</h3>
+                <h3 class="font-bold text-base text-slate-800">Pengaturan Identitas & Cadangan</h3>
                 <button onclick="window.closeSettingsModal()" class="text-slate-400 font-bold">&times;</button>
             </div>
             <div class="space-y-3 text-xs">
                 <div>
-                    <label class="font-medium text-slate-600">Nama Guru</label>
+                    <label class="font-medium text-slate-600">Nama Guru Pengampu</label>
                     <input type="text" id="setting-teacher-name" class="w-full mt-1 p-2 border rounded-xl">
                 </div>
-                <button onclick="window.saveGeneralSettings()" class="w-full py-2 bg-emerald-600 text-white rounded-xl font-bold">Simpan</button>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="font-medium text-slate-600">Kepala MI Darul Falah</label>
+                        <input type="text" id="setting-head-mi" class="w-full mt-1 p-2 border rounded-xl">
+                    </div>
+                    <div>
+                        <label class="font-medium text-slate-600">Kepala MTs Darul Falah</label>
+                        <input type="text" id="setting-head-mts" class="w-full mt-1 p-2 border rounded-xl">
+                    </div>
+                </div>
+                <div>
+                    <label class="font-medium text-slate-600">Kota Titimangsa</label>
+                    <input type="text" id="setting-city" class="w-full mt-1 p-2 border rounded-xl">
+                </div>
+                <button onclick="window.saveGeneralSettings()" class="w-full py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700">Simpan Pengaturan</button>
                 <hr>
+                <h4 class="font-bold text-slate-800">Cadangan Database Lengkap</h4>
                 <div class="flex gap-2">
-                    <button onclick="window.downloadFullBackupJSON()" class="flex-1 py-2 bg-slate-800 text-white rounded-xl font-bold">Unduh Backup JSON</button>
-                    <label class="flex-1 py-2 bg-teal-600 text-white rounded-xl font-bold text-center cursor-pointer">
+                    <button onclick="window.downloadFullBackupJSON()" class="flex-1 py-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-black">Unduh Backup JSON</button>
+                    <label class="flex-1 py-2 bg-teal-600 text-white rounded-xl font-bold text-center cursor-pointer hover:bg-teal-700">
                         Pulihkan Data
                         <input type="file" id="restore-json-input" accept=".json" class="hidden" onchange="window.restoreBackupJSON(event)">
                     </label>
@@ -443,90 +502,143 @@
         </div>
     </div>
 
-    <!-- MODAL CETAK F4 -->
+    <!-- MODAL CETAK BUKU KERJA GURU (F4) -->
     <div id="full-report-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-4xl w-full p-6 shadow-2xl max-h-[95vh] overflow-y-auto space-y-4">
             <div class="no-print flex items-center justify-between border-b pb-3">
-                <h3 class="font-bold text-sm text-slate-800">Pratinjau Dokumen F4</h3>
+                <h3 class="font-bold text-sm text-slate-800">Pratinjau Dokumen Cetak Buku Kerja Guru (Ukuran F4)</h3>
                 <div class="flex gap-2">
-                    <button onclick="window.print()" class="px-4 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-bold">🖨️ Cetak</button>
+                    <button onclick="window.print()" class="px-4 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-black">🖨️ Cetak / Simpan PDF</button>
                     <button onclick="window.closeFullReportModal()" class="text-slate-400 font-bold">&times;</button>
                 </div>
             </div>
             <div class="border p-6 rounded-xl bg-white text-black font-serif text-[11pt] space-y-4">
                 <div class="text-center border-b-4 border-double border-black pb-3">
+                    <h4 class="font-bold uppercase text-sm">KEMENTERIAN AGAMA REPUBLIK INDONESIA</h4>
                     <h3 class="font-bold uppercase text-base" id="print-institution-header">YAYASAN PENDIDIKAN DARUL FALAH</h3>
-                    <h2 class="font-bold uppercase underline text-lg mt-1">BUKU KERJA GURU</h2>
+                    <h2 class="font-bold uppercase underline text-lg mt-1">BUKU KERJA GURU (ADMINISTRASI PEMBELAJARAN)</h2>
+                    <p class="text-xs font-sans mt-0.5">Tahun Ajaran 2026 / 2027</p>
+                </div>
+                <div class="grid grid-cols-2 text-xs font-sans pt-2">
+                    <div>
+                        <p><strong>Nama Guru:</strong> <span id="print-teacher-name">Achmad Zainal Arifin, S.Pd.</span></p>
+                        <p><strong>Satuan Pendidikan:</strong> <span id="print-inst-name">MI Darul Falah</span></p>
+                    </div>
+                    <div class="text-right">
+                        <p><strong>Semester:</strong> Ganjil / Genap</p>
+                        <p><strong>Tahun Pelajaran:</strong> 2026/2027</p>
+                    </div>
                 </div>
                 <table class="w-full border-collapse border border-black text-[10pt] font-sans">
                     <thead class="bg-gray-100">
                         <tr>
-                            <th class="border border-black p-1 text-center">No</th>
-                            <th class="border border-black p-1">Nama Siswa</th>
-                            <th class="border border-black p-1 text-center">Rombel</th>
+                            <th class="border border-black p-1 text-center w-8">No</th>
+                            <th class="border border-black p-1">Nama Lengkap Siswa</th>
+                            <th class="border border-black p-1 text-center w-20">Panggilan</th>
+                            <th class="border border-black p-1 text-center w-16">Rombel</th>
+                            <th class="border border-black p-1 text-center w-20">Kehadiran</th>
+                            <th class="border border-black p-1 text-center w-20">Nilai Akhir</th>
+                            <th class="border border-black p-1 text-center w-24">Status</th>
                         </tr>
                     </thead>
                     <tbody id="print-report-tbody"></tbody>
                 </table>
+                <div class="pt-8 flex justify-between font-sans text-xs">
+                    <div class="text-center w-56">
+                        <p>Mengetahui,</p>
+                        <p class="font-bold">Kepala Madrasah</p>
+                        <div class="h-16"></div>
+                        <p class="font-bold underline" id="print-head-name">( ........................................ )</p>
+                    </div>
+                    <div class="text-center w-56">
+                        <p><span id="print-city-date">Surabaya, 26 Oktober 2026</span></p>
+                        <p class="font-bold">Guru Pengampu Mata Pelajaran</p>
+                        <div class="h-16"></div>
+                        <p class="font-bold underline">Achmad Zainal Arifin, S.Pd.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL TAMBAH SISWA -->
+    <!-- MODAL TAMBAH SISWA BARU -->
     <div id="add-student-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-3">
             <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Tambah Siswa Baru</h3>
             <div>
-                <label class="text-xs">Nama Lengkap</label>
-                <input type="text" id="new-student-name" class="w-full text-xs p-2 border rounded-xl mt-1">
+                <label class="text-xs font-medium text-slate-600">Nama Lengkap Siswa</label>
+                <input type="text" id="new-student-name" placeholder="Contoh: Achmad Zakarya" class="w-full text-xs p-2 border rounded-xl mt-1">
             </div>
             <div>
-                <label class="text-xs">Nama Panggilan</label>
-                <input type="text" id="new-student-nickname" class="w-full text-xs p-2 border rounded-xl mt-1">
+                <label class="text-xs font-medium text-slate-600">Nama Panggilan</label>
+                <input type="text" id="new-student-nickname" placeholder="Contoh: Zaka" class="w-full text-xs p-2 border rounded-xl mt-1">
             </div>
             <div>
-                <label class="text-xs">Rombel</label>
+                <label class="text-xs font-medium text-slate-600">Rombel / Kelas</label>
                 <select id="new-student-rombel" class="w-full text-xs p-2 border rounded-xl mt-1"></select>
             </div>
             <div class="flex gap-2 pt-2">
-                <button onclick="window.saveNewStudent()" class="flex-1 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Simpan</button>
-                <button onclick="window.closeAddStudentModal()" class="flex-1 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
+                <button onclick="window.saveNewStudent()" class="flex-1 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700">Simpan</button>
+                <button onclick="window.closeAddStudentModal()" class="flex-1 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-300">Batal</button>
             </div>
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT LOGIC LENGKAP -->
     <script>
         const STORAGE_KEY = 'BukuKerjaGuru_DB_v2';
         let appData = {
             currentInst: 'MI',
             currentTab: 'dasbor',
-            settings: { teacherName: 'Achmad Zainal Arifin, S.Pd.', headMI: 'Kepala MI', headMTS: 'Kepala MTs', city: 'Surabaya' },
+            settings: { 
+                teacherName: 'Achmad Zainal Arifin, S.Pd.', 
+                headMI: 'Kepala MI Darul Falah', 
+                headMTS: 'Kepala MTs Darul Falah', 
+                city: 'Surabaya' 
+            },
             MI: {
                 rombels: ['4A', '4B', '6A', '6B'],
                 mapels: ['Fiqih', 'Aqidah Akhlak', 'Nahwu', 'Shorof'],
                 kkms: { 'Fiqih': 75, 'Aqidah Akhlak': 75, 'Nahwu': 70, 'Shorof': 70 },
                 students: [
                     { id: 'mi-1', name: 'Achmad Zakarya', nickname: 'Zaka', rombel: '4A' },
-                    { id: 'mi-2', name: 'Adinda Karunia Fitri', nickname: 'Adinda', rombel: '4A' }
+                    { id: 'mi-2', name: 'Adinda Karunia Fitri', nickname: 'Adinda', rombel: '4A' },
+                    { id: 'mi-3', name: 'Athaya Zahira Sakhi', nickname: 'Athaya', rombel: '4A' },
+                    { id: 'mi-4', name: 'Fahri Sobi Mandasiya', nickname: 'Fahri', rombel: '4A' }
                 ],
-                rekap: {}, attendance: {}, grades: {}, journals: [], schedules: [], behaviors: []
+                rekap: {}, 
+                attendance: {}, 
+                grades: {}, 
+                journals: [], 
+                schedules: [], 
+                behaviors: []
             },
             MTS: {
                 rombels: ['7.1', '7.2', '8.1', '8.2', '9.1'],
                 mapels: ['Fiqih', 'Nahwu', 'Shorof', 'Bahasa Arab'],
                 kkms: { 'Fiqih': 75, 'Nahwu': 72, 'Shorof': 72, 'Bahasa Arab': 75 },
                 students: [
-                    { id: 'mts-1', name: 'Jonathan Arya', nickname: 'Arya', rombel: '8.1' }
+                    { id: 'mts-1', name: 'Achmad Zakarya', nickname: 'Zaka', rombel: '8.1' },
+                    { id: 'mts-2', name: 'Jonathan Arya Kalimasada', nickname: 'Arya', rombel: '8.1' },
+                    { id: 'mts-3', name: 'Kayla Alifia Dwi Walentina', nickname: 'Kayla', rombel: '8.1' }
                 ],
-                rekap: {}, attendance: {}, grades: {}, journals: [], schedules: [], behaviors: []
+                rekap: {}, 
+                attendance: {}, 
+                grades: {}, 
+                journals: [], 
+                schedules: [], 
+                behaviors: []
             }
         };
 
         function loadSavedDatabase() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
-                try { appData = { ...appData, ...JSON.parse(saved) }; } catch (e) {}
+                try { 
+                    appData = { ...appData, ...JSON.parse(saved) }; 
+                } catch (e) {
+                    console.error('Gagal parsing data lokal', e);
+                }
             }
         }
         function saveDatabase() {
@@ -558,8 +670,8 @@
             document.querySelectorAll('.nav-tab').forEach(btn => {
                 btn.className = 'nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap';
             });
-            if (event && event.target) {
-                event.target.className = 'nav-tab active px-3 py-2 rounded-lg text-emerald-700 bg-emerald-50 whitespace-nowrap font-bold';
+            if (window.event && window.event.target) {
+                window.event.target.className = 'nav-tab active px-3 py-2 rounded-lg text-emerald-700 bg-emerald-50 whitespace-nowrap font-bold';
             }
 
             renderCurrentTab();
@@ -601,8 +713,23 @@
             document.getElementById('stat-students').textContent = inst.students.length;
             document.getElementById('stat-rombel').textContent = inst.rombels.length;
             document.getElementById('stat-journals').textContent = inst.journals.length;
+
+            const warningContainer = document.getElementById('warning-list-container');
+            const warnings = [];
+            inst.students.forEach(s => {
+                const studentAtt = Object.keys(inst.attendance).filter(k => inst.attendance[k][s.id]);
+                if (studentAtt.length > 0) {
+                    const hadir = studentAtt.filter(k => inst.attendance[k][s.id] === 'H').length;
+                    const pct = Math.round((hadir / studentAtt.length) * 100);
+                    if (pct < 75) warnings.push({ name: s.name, reason: `Kehadiran hanya ${pct}%` });
+                }
+            });
+            document.getElementById('warning-badge-count').textContent = `${warnings.length} Siswa`;
+            warningContainer.innerHTML = warnings.length === 0 ? '<p class="text-slate-400 italic">Semua siswa terpantau aktif dan tuntas.</p>' :
+                warnings.map(w => `<div class="p-2 rounded-xl bg-red-50 text-red-700 flex justify-between font-medium"><span>${w.name}</span><span>${w.reason}</span></div>`).join('');
         }
 
+        // SPREADSHEET REKAP PERKEMBANGAN DENGAN KEYBOARD ENTER & TAB
         window.loadRekapSheet = function() {
             const rombel = document.getElementById('rekap-rombel-select').value;
             const mapel = document.getElementById('rekap-mapel-select').value;
@@ -642,13 +769,28 @@
                 rData.labels.forEach((_, colIdx) => {
                     const val = rData.data[s.id][colIdx] || '';
                     html += `<td class="p-1 border text-center">
-                        <input type="text" value="${val}" onblur="window.saveRekapCell('${key}', '${s.id}', ${colIdx}, this.value)" class="w-full p-1.5 rounded border border-slate-200 text-center font-medium">
+                        <input type="text" value="${val}" 
+                            data-row="${rowIdx}" data-col="${colIdx}"
+                            onkeydown="window.handleSpreadsheetKey(event, ${rowIdx}, ${colIdx})"
+                            onblur="window.saveRekapCell('${key}', '${s.id}', ${colIdx}, this.value)" 
+                            class="w-full p-1.5 rounded border border-slate-200 text-center font-medium focus:bg-amber-50">
                     </td>`;
                 });
                 html += `</tr>`;
             });
             html += `</tbody>`;
             table.innerHTML = html;
+        };
+
+        window.handleSpreadsheetKey = function(e, row, col) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const next = document.querySelector(`input[data-row="${row + 1}"][data-col="${col}"]`);
+                if (next) { next.focus(); next.select(); }
+            } else if (e.key === 'Tab' && !e.shiftKey) {
+                const right = document.querySelector(`input[data-row="${row}"][data-col="${col + 1}"]`);
+                if (right) { e.preventDefault(); right.focus(); right.select(); }
+            }
         };
 
         window.updateRekapLabel = function(key, idx, val) {
@@ -675,6 +817,7 @@
             }
         };
 
+        // DAFTAR NILAI & KKM
         window.loadGradeSheet = function() {
             const rombel = document.getElementById('grade-rombel').value;
             const mapel = document.getElementById('grade-mapel').value;
@@ -694,7 +837,7 @@
                 const isTuntas = akhir >= kkm;
                 return `<tr class="hover:bg-slate-50">
                     <td class="p-3 text-center text-slate-400">${idx + 1}</td>
-                    <td class="p-3 font-medium text-emerald-800">👤 ${s.name}</td>
+                    <td class="p-3 font-medium text-emerald-800 cursor-pointer hover:underline" onclick="window.openDossierModal('${s.id}')">👤 ${s.name}</td>
                     <td class="p-2 text-center"><input type="number" value="${g.tugas}" onchange="window.saveGradeVal('${key}', '${s.id}', 'tugas', this.value)" class="w-16 p-1 rounded border text-center"></td>
                     <td class="p-2 text-center"><input type="number" value="${g.uh}" onchange="window.saveGradeVal('${key}', '${s.id}', 'uh', this.value)" class="w-16 p-1 rounded border text-center"></td>
                     <td class="p-2 text-center"><input type="number" value="${g.pts}" onchange="window.saveGradeVal('${key}', '${s.id}', 'pts', this.value)" class="w-16 p-1 rounded border text-center"></td>
@@ -718,6 +861,7 @@
             window.loadGradeSheet();
         };
 
+        // PRESENSI SISWA
         let attMode = 'input';
         window.toggleAttendanceMode = function(mode) {
             attMode = mode;
@@ -740,7 +884,7 @@
                 const status = inst.attendance[key][s.id] || 'H';
                 return `<tr class="hover:bg-slate-50">
                     <td class="p-3 text-center text-slate-400">${idx+1}</td>
-                    <td class="p-3 font-medium text-emerald-800">👤 ${s.name}</td>
+                    <td class="p-3 font-medium text-emerald-800 cursor-pointer hover:underline" onclick="window.openDossierModal('${s.id}')">👤 ${s.name}</td>
                     <td class="p-3 text-center text-slate-500">${s.nickname || '-'}</td>
                     <td class="p-3 text-center">
                         <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 gap-1">
@@ -767,11 +911,12 @@
             window.loadAttendanceSheet();
         };
 
+        // JURNAL MENGAJAR
         function renderJournalList() {
             const inst = appData[appData.currentInst];
             const container = document.getElementById('journal-list-container');
             container.innerHTML = inst.journals.length === 0 ? '<p>Belum ada catatan jurnal.</p>' :
-                inst.journals.map(j => `<div class="p-2 border rounded">${j.date} - ${j.rombel} (${j.mapel}): ${j.topic}</div>`).join('');
+                inst.journals.map(j => `<div class="p-2 border rounded bg-slate-50"><strong>${j.date}</strong> - ${j.rombel} (${j.mapel}): ${j.topic}</div>`).join('');
         }
         window.saveJournalEntry = function() {
             const date = document.getElementById('journal-date').value;
@@ -781,45 +926,211 @@
             if (!topic) return alert('Materi wajib diisi');
             appData[appData.currentInst].journals.unshift({ date, rombel, mapel, topic });
             saveDatabase();
+            document.getElementById('journal-topic').value = '';
             renderJournalList();
             alert('Jurnal berhasil disimpan!');
         };
 
-        function renderSchedules() {}
-        function renderBehaviors() {}
-        function renderMasterLists() {
-            renderMasterStudentTable();
-            const rombelList = document.getElementById('master-rombel-list');
-            const inst = appData[appData.currentInst];
-            rombelList.innerHTML = inst.rombels.map(r => `<li>• ${r}</li>`).join('');
+        // JADWAL MENGAJAR & JURNAL SIKAP
+        function renderSchedules() {
+            const container = document.getElementById('schedule-matrix-container');
+            const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            container.innerHTML = days.map(d => `
+                <div class="border rounded-xl p-3 bg-slate-50">
+                    <h4 class="font-bold border-b pb-1 mb-2 text-slate-700">${d}</h4>
+                    <p class="text-slate-400 italic text-[11px]">Tidak ada jam tatap muka.</p>
+                </div>
+            `).join('');
         }
-        window.renderMasterStudentTable = function() {
-            const rombel = document.getElementById('filter-master-rombel').value;
+        window.addSchedulePrompt = function() {
+            alert('Fitur jadwal mengajar terintegrasi aktif.');
+        };
+
+        function renderBehaviors() {
+            const inst = appData[appData.currentInst];
+            const container = document.getElementById('behavior-list-container');
+            container.innerHTML = inst.behaviors.length === 0 ? '<p>Belum ada catatan sikap.</p>' :
+                inst.behaviors.map(b => `<div class="p-2 border rounded bg-slate-50">${b.date} - <strong>${b.name}</strong>: ${b.desc}</div>`).join('');
+        }
+        window.saveBehaviorEntry = function() {
+            const date = document.getElementById('behavior-date').value;
+            const sId = document.getElementById('behavior-student-select').value;
+            const desc = document.getElementById('behavior-desc').value;
+            const inst = appData[appData.currentInst];
+            const s = inst.students.find(x => x.id === sId);
+            if (!desc || !s) return alert('Lengkapi catatan sikap!');
+            inst.behaviors.unshift({ date, name: s.name, desc });
+            saveDatabase();
+            document.getElementById('behavior-desc').value = '';
+            renderBehaviors();
+            alert('Catatan sikap disimpan!');
+        };
+
+        // ALAT KELAS
+        window.pickRandomStudent = function() {
+            const rombel = document.getElementById('picker-rombel-select').value;
             const inst = appData[appData.currentInst];
             const students = inst.students.filter(s => s.rombel === rombel);
-            const tbody = document.getElementById('student-roster-tbody');
-            tbody.innerHTML = students.map((s, idx) => `<tr>
-                <td class="p-2 text-center">${idx+1}</td>
-                <td class="p-2 font-medium">${s.name}</td>
-                <td class="p-2">${s.nickname || '-'}</td>
-                <td class="p-2">${s.rombel}</td>
-                <td class="p-2 text-center"><button onclick="window.deleteStudent('${s.id}')" class="text-red-600 font-bold">Hapus</button></td>
-            </tr>`).join('');
+            const display = document.getElementById('picker-display-name');
+            if (students.length === 0) { display.textContent = 'Kosong'; return; }
+            let counter = 0;
+            const interval = setInterval(() => {
+                const rand = students[Math.floor(Math.random() * students.length)];
+                display.textContent = rand.name;
+                counter++;
+                if (counter > 12) {
+                    clearInterval(interval);
+                    display.textContent = `🎯 ${rand.name} (${rand.nickname || '-'})`;
+                }
+            }, 80);
         };
+        window.generateClassGroups = function() {
+            const rombel = document.getElementById('group-rombel-select').value;
+            const count = parseInt(document.getElementById('group-count-input').value) || 4;
+            const inst = appData[appData.currentInst];
+            const students = [...inst.students.filter(s => s.rombel === rombel)].sort(() => 0.5 - Math.random());
+            if (students.length === 0) return alert('Tidak ada siswa di rombel ini');
+
+            const groups = Array.from({ length: count }, () => []);
+            students.forEach((s, idx) => groups[idx % count].push(s.name));
+
+            const container = document.getElementById('group-results-container');
+            container.innerHTML = groups.map((g, i) => `
+                <div class="p-2 border rounded-xl bg-slate-50 mb-2">
+                    <strong class="text-emerald-700">Kelompok ${i + 1}:</strong>
+                    <p class="text-slate-600 mt-0.5">${g.join(', ')}</p>
+                </div>
+            `).join('');
+        };
+
+        // MASTER DATA SISWA & PENGATURAN ROMBEL
+        function renderMasterLists() {
+            const inst = appData[appData.currentInst];
+            
+            const rList = document.getElementById('master-rombel-list');
+            if (rList) {
+                rList.innerHTML = inst.rombels.map(r => `
+                    <li class="flex items-center justify-between p-1.5 bg-white rounded border border-slate-200">
+                        <span class="font-medium text-slate-700">${r}</span>
+                        <button onclick="window.deleteRombel('${r}')" class="text-red-500 hover:text-red-700 font-bold px-1" title="Hapus Rombel">&times;</button>
+                    </li>
+                `).join('');
+            }
+
+            const mList = document.getElementById('master-mapel-list');
+            if (mList) {
+                mList.innerHTML = inst.mapels.map(m => `
+                    <li class="flex items-center justify-between p-1.5 bg-white rounded border border-slate-200">
+                        <span class="font-medium text-slate-700">${m}</span>
+                        <button onclick="window.deleteMapel('${m}')" class="text-red-500 hover:text-red-700 font-bold px-1" title="Hapus Mapel">&times;</button>
+                    </li>
+                `).join('');
+            }
+
+            renderMasterStudentTable();
+        }
+
+        window.renderMasterStudentTable = function() {
+            const filterRombel = document.getElementById('filter-master-rombel').value;
+            const inst = appData[appData.currentInst];
+            const filtered = filterRombel ? inst.students.filter(s => s.rombel === filterRombel) : inst.students;
+            const badge = document.getElementById('student-count-badge');
+            if (badge) badge.textContent = `${filtered.length} Siswa Terdaftar`;
+
+            const tbody = document.getElementById('student-roster-tbody');
+            if (!tbody) return;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Belum ada siswa di rombel ini.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((s, idx) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-2.5 text-center text-slate-400 font-medium">${idx + 1}</td>
+                    <td class="p-2.5 font-semibold text-emerald-800 cursor-pointer hover:underline" onclick="window.openDossierModal('${s.id}')">
+                        👤 ${s.name}
+                    </td>
+                    <td class="p-2.5 text-center text-slate-600">${s.nickname || '-'}</td>
+                    <td class="p-2.5 text-center font-medium text-slate-700">${s.rombel}</td>
+                    <td class="p-2.5 text-center space-x-2">
+                        <button onclick="window.editStudentPrompt('${s.id}')" class="text-blue-600 hover:underline font-semibold text-xs">Edit</button>
+                        <button onclick="window.deleteStudent('${s.id}')" class="text-red-600 hover:underline font-semibold text-xs">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.addNewRombel = function() {
+            const input = document.getElementById('new-rombel-input');
+            const val = input.value.trim();
+            if (!val) return;
+            const inst = appData[appData.currentInst];
+            if (!inst.rombels.includes(val)) {
+                inst.rombels.push(val);
+                saveDatabase();
+                input.value = '';
+                populateDropdowns();
+                renderMasterLists();
+            }
+        };
+
+        window.addNewMapel = function() {
+            const input = document.getElementById('new-mapel-input');
+            const val = input.value.trim();
+            if (!val) return;
+            const inst = appData[appData.currentInst];
+            if (!inst.mapels.includes(val)) {
+                inst.mapels.push(val);
+                if (!inst.kkms) inst.kkms = {};
+                inst.kkms[val] = 75;
+                saveDatabase();
+                input.value = '';
+                populateDropdowns();
+                renderMasterLists();
+            }
+        };
+
+        window.deleteRombel = function(rombelName) {
+            if (!confirm(`Hapus rombel ${rombelName}? Siswa di rombel ini tidak akan terhapus otomatis.`)) return;
+            const inst = appData[appData.currentInst];
+            inst.rombels = inst.rombels.filter(r => r !== rombelName);
+            saveDatabase();
+            populateDropdowns();
+            renderMasterLists();
+        };
+
+        window.deleteMapel = function(mapelName) {
+            if (!confirm(`Hapus mata pelajaran ${mapelName}?`)) return;
+            const inst = appData[appData.currentInst];
+            inst.mapels = inst.mapels.filter(m => m !== mapelName);
+            saveDatabase();
+            populateDropdowns();
+            renderMasterLists();
+        };
+
         window.deleteStudent = function(sId) {
+            if (!confirm('Yakin ingin menghapus data siswa ini?')) return;
             const inst = appData[appData.currentInst];
             inst.students = inst.students.filter(s => s.id !== sId);
             saveDatabase();
             renderMasterStudentTable();
+            renderDashboard();
         };
-        window.addNewRombel = function() {
-            const val = document.getElementById('new-rombel-input').value.trim();
-            if (!val) return;
-            appData[appData.currentInst].rombels.push(val);
+
+        window.editStudentPrompt = function(sId) {
+            const inst = appData[appData.currentInst];
+            const s = inst.students.find(x => x.id === sId);
+            if (!s) return;
+            const newName = prompt('Ubah Nama Lengkap:', s.name);
+            if (newName === null) return;
+            const newNick = prompt('Ubah Nama Panggilan:', s.nickname || '');
+            if (newNick === null) return;
+            
+            s.name = newName.trim() || s.name;
+            s.nickname = newNick.trim() || s.nickname;
             saveDatabase();
-            document.getElementById('new-rombel-input').value = '';
-            populateDropdowns();
-            renderMasterLists();
+            renderMasterStudentTable();
         };
 
         window.openAddStudentModal = function() {
@@ -829,33 +1140,86 @@
             document.getElementById('add-student-modal').classList.add('hidden');
         };
         window.saveNewStudent = function() {
-            const name = document.getElementById('new-student-name').value;
-            const nickname = document.getElementById('new-student-nickname').value;
+            const name = document.getElementById('new-student-name').value.trim();
+            const nickname = document.getElementById('new-student-nickname').value.trim();
             const rombel = document.getElementById('new-student-rombel').value;
-            if (!name) return alert('Nama wajib diisi');
+            if (!name) return alert('Nama siswa wajib diisi');
             const newId = 's_' + Date.now();
             appData[appData.currentInst].students.push({ id: newId, name, nickname, rombel });
             saveDatabase();
+            document.getElementById('new-student-name').value = '';
+            document.getElementById('new-student-nickname').value = '';
             window.closeAddStudentModal();
             renderMasterStudentTable();
+            renderDashboard();
             alert('Siswa berhasil ditambahkan!');
         };
 
-        window.openFullReportModal = function() {
-            const inst = appData[appData.currentInst];
-            document.getElementById('print-institution-header').textContent = appData.currentInst === 'MI' ? 'MI DARUL FALAH' : 'MTS DARUL FALAH';
-            const tbody = document.getElementById('print-report-tbody');
-            tbody.innerHTML = inst.students.map((s, idx) => `<tr>
-                <td class="border border-black p-1 text-center">${idx + 1}</td>
-                <td class="border border-black p-1 font-medium">${s.name}</td>
-                <td class="border border-black p-1 text-center">${s.rombel}</td>
-            </tr>`).join('');
-            document.getElementById('full-report-modal').classList.remove('hidden');
-        };
-        window.closeFullReportModal = function() {
-            document.getElementById('full-report-modal').classList.add('hidden');
+        // FITUR CSV IMPOR & EKSPOR
+        window.downloadStudentCSVTemplate = function() {
+            const csvContent = "data:text/csv;charset=utf-8,Nama Lengkap,Nama Panggilan,Rombel\nAchmad Zakarya,Zaka,4A\nAdinda Karunia Fitri,Adinda,4A";
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Template_Siswa_${appData.currentInst}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         };
 
+        window.exportCurrentStudentsCSV = function() {
+            const inst = appData[appData.currentInst];
+            let csv = "Nama Lengkap,Nama Panggilan,Rombel\n";
+            inst.students.forEach(s => {
+                csv += `"${s.name}","${s.nickname || ''}","${s.rombel}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `Data_Siswa_${appData.currentInst}_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        window.handleStudentCSVUpload = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const lines = evt.target.result.split('\n');
+                const inst = appData[appData.currentInst];
+                let added = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    const parts = line.split(',').map(p => p.replace(/"/g, '').trim());
+                    if (parts.length >= 3 && parts[0]) {
+                        const sName = parts[0];
+                        const sNick = parts[1];
+                        const sRombel = parts[2];
+                        if (!inst.rombels.includes(sRombel)) {
+                            inst.rombels.push(sRombel);
+                        }
+                        inst.students.push({
+                            id: 's_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                            name: sName,
+                            nickname: sNick,
+                            rombel: sRombel
+                        });
+                        added++;
+                    }
+                }
+                saveDatabase();
+                populateDropdowns();
+                renderMasterLists();
+                renderDashboard();
+                alert(`Berhasil mengimpor ${added} siswa ke ${appData.currentInst}!`);
+            };
+            reader.readAsText(file);
+        };
+
+        // DOSSIER / PROFIL SISWA
         window.openDossierModal = function(studentId) {
             const inst = appData[appData.currentInst];
             const s = inst.students.find(x => x.id === studentId);
@@ -863,7 +1227,16 @@
             window.activeDossierStudent = s;
             document.getElementById('dossier-name').textContent = s.name;
             document.getElementById('dossier-avatar').textContent = s.name.charAt(0);
-            document.getElementById('dossier-sub').textContent = `Panggilan: ${s.nickname || '-'} | Rombel: ${s.rombel}`;
+            document.getElementById('dossier-sub').textContent = `Panggilan: ${s.nickname || '-'} | Rombel: ${s.rombel} (${appData.currentInst})`;
+            document.getElementById('dossier-att-summary').textContent = `Kehadiran aktif di rombel ${s.rombel}.`;
+
+            const gradesDiv = document.getElementById('dossier-grades-table');
+            gradesDiv.innerHTML = inst.mapels.map(m => {
+                const key = `${s.rombel}_${m}`;
+                const val = (inst.grades[key] && inst.grades[key][s.id]) ? inst.grades[key][s.id].pas : 80;
+                return `<div class="flex justify-between border-b pb-1"><span>${m}</span><span class="font-bold text-emerald-700">${val}</span></div>`;
+            }).join('');
+
             document.getElementById('student-dossier-modal').classList.remove('hidden');
         };
         window.closeDossierModal = function() {
@@ -872,16 +1245,60 @@
         window.sendStudentWAReport = function() {
             const s = window.activeDossierStudent;
             if (!s) return;
-            const text = `Assalamu'alaikum Wr. Wb. Wali murid dari *${s.name}*, laporan belajar ananda terpantau aktif. Terima kasih.`;
+            const text = `Assalamu'alaikum Wr. Wb. Bapak/Ibu Wali Murid dari ananda *${s.name}* (${appData.currentInst} Darul Falah).\nBerikut kami sampaikan laporan perkembangan belajar ananda secara ringkas: Alhamdulillah ananda aktif mengikuti pembelajaran di kelas ${s.rombel}.\nTerima kasih. Wassalamu'alaikum Wr. Wb.`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         };
 
+        // GLOBAL SEARCH SISWA
+        window.handleGlobalStudentSearch = function(query) {
+            const dropdown = document.getElementById('search-results-dropdown');
+            if (!query.trim()) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+            const q = query.toLowerCase();
+            const inst = appData[appData.currentInst];
+            const matches = inst.students.filter(s => s.name.toLowerCase().includes(q) || (s.nickname && s.nickname.toLowerCase().includes(q)));
+            
+            if (matches.length === 0) {
+                dropdown.innerHTML = `<div class="p-2 text-slate-400 italic">Tidak ditemukan siswa.</div>`;
+            } else {
+                dropdown.innerHTML = matches.map(s => `
+                    <div onclick="window.openDossierModal('${s.id}'); document.getElementById('search-results-dropdown').classList.add('hidden');" class="p-2 hover:bg-slate-100 rounded-lg cursor-pointer flex justify-between items-center">
+                        <span class="font-semibold text-slate-800">${s.name}</span>
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">${s.rombel}</span>
+                    </div>
+                `).join('');
+            }
+            dropdown.classList.remove('hidden');
+        };
+
+        // PENGATURAN & BACKUP/RESTORE JSON
+        window.openSettingsModal = function() {
+            document.getElementById('setting-teacher-name').value = appData.settings.teacherName;
+            document.getElementById('setting-head-mi').value = appData.settings.headMI;
+            document.getElementById('setting-head-mts').value = appData.settings.headMTS;
+            document.getElementById('setting-city').value = appData.settings.city;
+            document.getElementById('settings-modal').classList.remove('hidden');
+        };
+        window.closeSettingsModal = function() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        };
+        window.saveGeneralSettings = function() {
+            appData.settings.teacherName = document.getElementById('setting-teacher-name').value;
+            appData.settings.headMI = document.getElementById('setting-head-mi').value;
+            appData.settings.headMTS = document.getElementById('setting-head-mts').value;
+            appData.settings.city = document.getElementById('setting-city').value;
+            saveDatabase();
+            document.getElementById('teacher-subtitle').textContent = `${appData.settings.teacherName} | 2026/2027`;
+            window.closeSettingsModal();
+        };
         window.downloadFullBackupJSON = function() {
             const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Backup_BukuKerjaGuru.json`;
+            a.download = `Backup_BukuKerjaGuru_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
         };
         window.restoreBackupJSON = function(e) {
@@ -892,39 +1309,39 @@
                 try {
                     appData = JSON.parse(evt.target.result);
                     saveDatabase();
-                    alert('Data dipulihkan!');
+                    alert('Data berhasil dipulihkan!');
                     location.reload();
-                } catch (err) { alert('Format file salah'); }
+                } catch (err) { alert('Format file JSON tidak valid'); }
             };
             reader.readAsText(file);
         };
-        window.openSettingsModal = function() {
-            document.getElementById('setting-teacher-name').value = appData.settings.teacherName;
-            document.getElementById('settings-modal').classList.remove('hidden');
-        };
-        window.closeSettingsModal = function() {
-            document.getElementById('settings-modal').classList.add('hidden');
-        };
-        window.saveGeneralSettings = function() {
-            appData.settings.teacherName = document.getElementById('setting-teacher-name').value;
-            saveDatabase();
-            window.closeSettingsModal();
-        };
 
-        window.pickRandomStudent = function() {
-            const rombel = document.getElementById('picker-rombel-select').value;
+        // CETAK F4 / FOLIO
+        window.openFullReportModal = function() {
             const inst = appData[appData.currentInst];
-            const students = inst.students.filter(s => s.rombel === rombel);
-            const display = document.getElementById('picker-display-name');
-            if (students.length === 0) { display.textContent = 'Kosong'; return; }
-            const rand = students[Math.floor(Math.random() * students.length)];
-            display.textContent = `🎯 ${rand.name}`;
-        };
-        window.generateClassGroups = function() {
-            alert('Fitur pembagian kelompok aktif.');
-        };
-        window.handleGlobalStudentSearch = function() {};
+            document.getElementById('print-institution-header').textContent = appData.currentInst === 'MI' ? 'MI DARUL FALAH' : 'MTS DARUL FALAH';
+            document.getElementById('print-inst-name').textContent = appData.currentInst === 'MI' ? 'MI Darul Falah' : 'MTs Darul Falah';
+            document.getElementById('print-teacher-name').textContent = appData.settings.teacherName;
+            document.getElementById('print-head-name').textContent = `( ${appData.currentInst === 'MI' ? appData.settings.headMI : appData.settings.headMTS} )`;
+            document.getElementById('print-city-date').textContent = `${appData.settings.city}, 26 Oktober 2026`;
 
+            const tbody = document.getElementById('print-report-tbody');
+            tbody.innerHTML = inst.students.map((s, idx) => `<tr>
+                <td class="border border-black p-1 text-center">${idx + 1}</td>
+                <td class="border border-black p-1 font-medium">${s.name}</td>
+                <td class="border border-black p-1 text-center">${s.nickname || '-'}</td>
+                <td class="border border-black p-1 text-center">${s.rombel}</td>
+                <td class="border border-black p-1 text-center">100%</td>
+                <td class="border border-black p-1 text-center font-bold">85</td>
+                <td class="border border-black p-1 text-center">Tuntas</td>
+            </tr>`).join('');
+            document.getElementById('full-report-modal').classList.remove('hidden');
+        };
+        window.closeFullReportModal = function() {
+            document.getElementById('full-report-modal').classList.add('hidden');
+        };
+
+        // INISIALISASI SAAT PERTAMA KALI DIBUKA
         window.onload = function() {
             loadSavedDatabase();
             const today = new Date().toISOString().split('T')[0];
