@@ -190,7 +190,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             </div>
         </section>
 
-        <!-- TAB 2: REKAP PERKEMBANGAN (DENGAN EKSPOR/IMPOR CSV) -->
+        <!-- TAB 2: REKAP PERKEMBANGAN -->
         <section id="tab-rekap" class="tab-pane hidden space-y-4">
             <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
                 <div class="flex flex-wrap items-center gap-3">
@@ -250,7 +250,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             </div>
         </section>
 
-        <!-- TAB 4: NILAI & KKM (DENGAN EKSPOR/IMPOR CSV) -->
+        <!-- TAB 4: NILAI & KKM -->
         <section id="tab-nilai" class="tab-pane hidden space-y-4">
             <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
                 <div class="flex flex-wrap items-center gap-3">
@@ -357,14 +357,19 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             </div>
         </section>
 
-        <!-- TAB 7: JURNAL SIKAP & KARAKTER -->
+        <!-- TAB 7: JURNAL SIKAP & KARAKTER (DENGAN FILTER KELAS & EKSPOR/IMPOR CSV) -->
         <section id="tab-sikap" class="tab-pane hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Form Pencatatan Sikap -->
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Catatan Sikap & Prestasi Siswa</h3>
                     <div>
                         <label class="text-xs font-medium text-slate-600">Tanggal</label>
                         <input type="date" id="behavior-date" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300">
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Filter Rombel untuk Siswa</label>
+                        <select id="behavior-rombel-filter" onchange="window.updateBehaviorStudentList()" class="w-full text-xs mt-1 p-2 border rounded-xl border-slate-300 bg-white font-medium"></select>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-slate-600">Pilih Siswa (Ketik Nama / Dropdown)</label>
@@ -373,11 +378,11 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                     </div>
                     <div>
                         <label class="text-xs font-medium text-slate-600">Mata Pelajaran Terkait</label>
-                        <select id="behavior-mapel-select" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300 bg-white"></select>
+                        <select id="behavior-mapel-select" class="w-full text-xs mt-1 p-2 border rounded-xl border-slate-300 bg-white"></select>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-slate-600">Kategori Catatan</label>
-                        <select id="behavior-category-select" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300 bg-white">
+                        <select id="behavior-category-select" class="w-full text-xs mt-1 p-2 border rounded-xl border-slate-300 bg-white">
                             <option value="Prestasi / Positif">🌟 Berprestasi / Aktif / Positif</option>
                             <option value="Bimbingan / Sikap">⚠️ Perlu Pembinaan / Bimbingan</option>
                             <option value="Ibadah / Akhlak">🕌 Pembiasaan Ibadah / Akhlak</option>
@@ -390,12 +395,18 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                     <button onclick="window.saveBehaviorEntry()" class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700">Simpan Catatan</button>
                 </div>
 
+                <!-- Riwayat Catatan Sikap dengan Filter Kelas, Mapel & Ekspor/Impor -->
                 <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
                         <h3 class="font-bold text-sm text-slate-800">Riwayat Catatan Karakter & Prestasi</h3>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-medium text-slate-500">Filter Mapel:</span>
-                            <select id="filter-behavior-mapel" onchange="window.renderBehaviors()" class="text-xs p-1.5 rounded-lg border border-slate-300 bg-white font-medium"></select>
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <select id="filter-behavior-rombel" onchange="window.renderBehaviors()" class="text-xs p-1 rounded-lg border border-slate-300 bg-white font-medium"></select>
+                            <select id="filter-behavior-mapel" onchange="window.renderBehaviors()" class="text-xs p-1 rounded-lg border border-slate-300 bg-white font-medium"></select>
+                            <button onclick="window.exportBehaviorCSV()" title="Ekspor ke Excel/CSV" class="px-2 py-1 rounded-lg bg-slate-100 border text-slate-700 text-xs font-semibold hover:bg-slate-200">📥 Ekspor</button>
+                            <label title="Impor dari Excel/CSV" class="px-2 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold cursor-pointer hover:bg-indigo-100">
+                                📤 Impor
+                                <input type="file" id="import-behavior-csv" accept=".csv" class="hidden" onchange="window.importBehaviorCSV(event)">
+                            </label>
                         </div>
                     </div>
                     <div id="behavior-list-container" class="space-y-2 text-xs text-slate-500 max-h-[500px] overflow-y-auto custom-scrollbar">
@@ -961,7 +972,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             const rombelOpts = inst.rombels.map(r => `<option value="${r}">${r}</option>`).join('');
             const mapelOpts = inst.mapels.map(m => `<option value="${m}">${m}</option>`).join('');
 
-            ['rekap-rombel-select', 'att-rombel-select', 'grade-rombel', 'journal-rombel', 'picker-rombel-select', 'group-rombel-select', 'filter-master-rombel', 'new-student-rombel', 'sch-rombel'].forEach(id => {
+            ['rekap-rombel-select', 'att-rombel-select', 'grade-rombel', 'journal-rombel', 'picker-rombel-select', 'group-rombel-select', 'filter-master-rombel', 'new-student-rombel', 'sch-rombel', 'behavior-rombel-filter'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     const prev = el.value;
@@ -992,6 +1003,13 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 if (inst.mapels.includes(prev)) fJMap.value = prev;
             }
 
+            // Filter Karakter Dropdowns
+            const fBRom = document.getElementById('filter-behavior-rombel');
+            if (fBRom) {
+                const prev = fBRom.value;
+                fBRom.innerHTML = `<option value="">Semua Rombel</option>` + rombelOpts;
+                if (inst.rombels.includes(prev)) fBRom.value = prev;
+            }
             const filterBMapel = document.getElementById('filter-behavior-mapel');
             if (filterBMapel) {
                 const prev = filterBMapel.value;
@@ -999,13 +1017,20 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 filterBMapel.value = prev;
             }
 
+            window.updateBehaviorStudentList();
+        }
+
+        window.updateBehaviorStudentList = function() {
+            const rombel = document.getElementById('behavior-rombel-filter')?.value;
+            const inst = appData[appData.currentInst];
+            const students = rombel ? inst.students.filter(s => s.rombel === rombel) : inst.students;
             const bDatalist = document.getElementById('behavior-student-datalist');
             if (bDatalist) {
-                bDatalist.innerHTML = inst.students.map(s => `
+                bDatalist.innerHTML = students.map(s => `
                     <option value="${s.name} (${s.rombel})">${s.nickname ? 'Panggilan: ' + s.nickname : s.rombel}</option>
                 `).join('');
             }
-        }
+        };
 
         function renderDashboard() {
             const inst = appData[appData.currentInst];
@@ -1034,7 +1059,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 warnings.map(w => `<div class="p-2 rounded-xl bg-red-50 text-red-700 flex justify-between font-medium"><span>${w.name}</span><span>${w.reason}</span></div>`).join('');
         }
 
-        // SPREADSHEET REKAP PERKEMBANGAN (OTOMATIS SINKRON KE NILAI TUGAS + EKSPOR/IMPOR CSV)
+        // SPREADSHEET REKAP PERKEMBANGAN
         window.loadRekapSheet = function() {
             const rombel = document.getElementById('rekap-rombel-select').value;
             const mapel = document.getElementById('rekap-mapel-select').value;
@@ -1212,12 +1237,12 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 }
                 saveDatabase();
                 window.loadRekapSheet();
-                alert(`Berhasil mengimpor rekap untuk ${updatedCount} siswa! Nilai Tugas pada Daftar Nilai otomatis tersinkron.`);
+                alert(`Berhasil mengimpor rekap untuk ${updatedCount} siswa!`);
             };
             reader.readAsText(file);
         };
 
-        // DAFTAR NILAI & KKM (DENGAN EKSPOR/IMPOR CSV)
+        // DAFTAR NILAI & KKM
         window.loadGradeSheet = function() {
             const rombel = document.getElementById('grade-rombel').value;
             const mapel = document.getElementById('grade-mapel').value;
@@ -1577,26 +1602,31 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             renderSchedules();
         };
 
-        // JURNAL SIKAP & KARAKTER
+        // JURNAL SIKAP & KARAKTER (DENGAN FILTER KELAS & EKSPOR/IMPOR CSV)
         window.renderBehaviors = function() {
             const inst = appData[appData.currentInst];
-            const filterMapel = document.getElementById('filter-behavior-mapel')?.value || '';
+            const fRom = document.getElementById('filter-behavior-rombel')?.value || '';
+            const fMap = document.getElementById('filter-behavior-mapel')?.value || '';
             const container = document.getElementById('behavior-list-container');
+            if (!container) return;
             
-            const filtered = filterMapel ? inst.behaviors.filter(b => b.mapel === filterMapel) : inst.behaviors;
+            let filtered = inst.behaviors || [];
+            if (fRom) filtered = filtered.filter(b => b.name.includes(`(${fRom})`));
+            if (fMap) filtered = filtered.filter(b => b.mapel === fMap);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="p-3 text-slate-400 italic">Belum ada catatan karakter/prestasi ${filterMapel ? 'untuk mapel ' + filterMapel : ''}.</p>`;
+                container.innerHTML = `<p class="p-3 text-slate-400 italic">Belum ada catatan karakter/prestasi sesuai filter.</p>`;
                 return;
             }
 
-            container.innerHTML = filtered.map(b => `
-                <div class="p-3 border rounded-xl bg-slate-50 space-y-1">
+            container.innerHTML = filtered.map((b, idx) => `
+                <div class="p-3 border rounded-xl bg-slate-50 space-y-1 relative group">
                     <div class="flex flex-wrap items-center justify-between gap-1">
                         <span class="font-bold text-slate-800">${b.name}</span>
                         <div class="flex gap-1.5 items-center">
                             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${b.mapel || 'Umum'}</span>
                             <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 text-slate-700">${b.category || 'Catatan'}</span>
+                            <button onclick="window.deleteBehaviorEntry(${idx})" class="text-red-500 hover:text-red-700 font-bold px-1 text-xs" title="Hapus">&times;</button>
                         </div>
                     </div>
                     <p class="text-slate-600">${b.desc}</p>
@@ -1631,6 +1661,60 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             document.getElementById('behavior-student-input').value = '';
             window.renderBehaviors();
             alert('Catatan sikap/prestasi berhasil disimpan & disinkronkan ke Cloud!');
+        };
+
+        window.deleteBehaviorEntry = function(index) {
+            if (!confirm('Hapus catatan karakter ini?')) return;
+            const inst = appData[appData.currentInst];
+            inst.behaviors.splice(index, 1);
+            saveDatabase();
+            window.renderBehaviors();
+        };
+
+        window.exportBehaviorCSV = function() {
+            const inst = appData[appData.currentInst];
+            let csv = "Tanggal,Siswa,Mapel,Kategori,Deskripsi\n";
+            (inst.behaviors || []).forEach(b => {
+                csv += `"${b.date}","${b.name}","${b.mapel || 'Umum'}","${b.category || ''}","${b.desc.replace(/"/g, '""')}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `Jurnal_Karakter_${appData.currentInst}_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        window.importBehaviorCSV = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const lines = evt.target.result.split('\n');
+                const inst = appData[appData.currentInst];
+                if (!inst.behaviors) inst.behaviors = [];
+                let added = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    const parts = line.split(',').map(p => p.replace(/"/g, '').trim());
+                    if (parts.length >= 5 && parts[0]) {
+                        inst.behaviors.push({
+                            date: parts[0],
+                            name: parts[1],
+                            mapel: parts[2],
+                            category: parts[3],
+                            desc: parts.slice(4).join(',')
+                        });
+                        added++;
+                    }
+                }
+                saveDatabase();
+                window.renderBehaviors();
+                alert(`Berhasil mengimpor ${added} catatan karakter ke Cloud!`);
+            };
+            reader.readAsText(file);
         };
 
         // ALAT KELAS
