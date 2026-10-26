@@ -218,7 +218,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                     <table class="w-full text-xs text-left border-collapse" id="rekap-spreadsheet-table"></table>
                 </div>
             </div>
-            <p class="text-[11px] text-slate-400 italic">💡 Pintasan & Sinkronisasi: Masukkan angka nilai harian. Data akan otomatis masuk ke komponen <strong>Tugas</strong> di Daftar Nilai & KKM. Tekan <strong>Enter</strong> untuk turun dan <strong>Tab</strong> ke kanan.</p>
+            <p class="text-[11px] text-slate-400 italic">💡 Pintasan & Sinkronisasi: Masukkan angka nilai harian. Data otomatis masuk ke komponen <strong>Tugas</strong> di Daftar Nilai. Tekan <strong>Enter</strong> untuk turun dan <strong>Tab</strong> ke kanan.</p>
         </section>
 
         <!-- TAB 3: PRESENSI -->
@@ -550,7 +550,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
         </div>
     </div>
 
-    <!-- MODAL DOSSIER SISWA (KLIK NAMA SISWA) -->
+    <!-- MODAL DOSSIER SISWA (PORTOFOLIO LENGKAP) -->
     <div id="student-dossier-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b pb-3">
@@ -574,6 +574,10 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
                     <h4 class="font-bold text-slate-700 mb-1">Transkrip Nilai Semua Mapel</h4>
                     <div id="dossier-grades-table" class="space-y-1"></div>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-700 mb-1">Catatan Karakter & Prestasi</h4>
+                    <div id="dossier-behavior-list" class="space-y-1 max-h-36 overflow-y-auto"></div>
                 </div>
             </div>
         </div>
@@ -963,7 +967,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             if (appData.currentTab === 'nilai') window.loadGradeSheet();
             if (appData.currentTab === 'jurnal') window.renderJournalList();
             if (appData.currentTab === 'jadwal') renderSchedules();
-            if (appData.currentTab === 'sikap') renderBehaviors();
+            if (appData.currentTab === 'sikap') window.renderBehaviors();
             if (appData.currentTab === 'master') renderMasterLists();
         }
 
@@ -1602,7 +1606,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             renderSchedules();
         };
 
-        // JURNAL SIKAP & KARAKTER (DENGAN FILTER KELAS & EKSPOR/IMPOR CSV)
+        // JURNAL SIKAP & KARAKTER (DENGAN FILTER KELAS, MAPEL, EKSPOR & IMPOR CSV)
         window.renderBehaviors = function() {
             const inst = appData[appData.currentInst];
             const fRom = document.getElementById('filter-behavior-rombel')?.value || '';
@@ -1715,6 +1719,77 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 alert(`Berhasil mengimpor ${added} catatan karakter ke Cloud!`);
             };
             reader.readAsText(file);
+        };
+
+        // DOSSIER / PORTOFOLIO LENGKAP SISWA
+        window.openDossierModal = function(studentId) {
+            const inst = appData[appData.currentInst];
+            const s = inst.students.find(x => x.id === studentId);
+            if (!s) return;
+            window.activeDossierStudent = s;
+            document.getElementById('dossier-name').textContent = s.name;
+            document.getElementById('dossier-avatar').textContent = s.name.charAt(0);
+            document.getElementById('dossier-sub').textContent = `Panggilan: ${s.nickname || '-'} | Rombel: ${s.rombel} (${appData.currentInst})`;
+
+            // 1. Akumulasi Presensi
+            let totalH = 0, totalS = 0, totalI = 0, totalA = 0;
+            Object.keys(inst.attendance || {}).forEach(k => {
+                if (k.includes(`_${s.rombel}_`) && inst.attendance[k][s.id]) {
+                    const st = inst.attendance[k][s.id];
+                    if (st === 'H') totalH++;
+                    if (st === 'S') totalS++;
+                    if (st === 'I') totalI++;
+                    if (st === 'A') totalA++;
+                }
+            });
+            const totalAtt = totalH + totalS + totalI + totalA;
+            const attPct = totalAtt > 0 ? Math.round((totalH / totalAtt) * 100) : 100;
+            document.getElementById('dossier-att-summary').innerHTML = `
+                Hadir: <strong>${totalH}</strong> | Sakit: <strong>${totalS}</strong> | Izin: <strong>${totalI}</strong> | Alpha: <strong>${totalA}</strong> (Kehadiran: ${attPct}%)
+            `;
+
+            // 2. Transkrip Nilai Lengkap per Mapel
+            const gradesDiv = document.getElementById('dossier-grades-table');
+            gradesDiv.innerHTML = inst.mapels.map(m => {
+                const key = `${s.rombel}_${m}`;
+                const g = (inst.grades[key] && inst.grades[key][s.id]) ? inst.grades[key][s.id] : { tugas: 75, uh: 75, pts: 75, pas: 75 };
+                const akhir = Math.round((g.tugas * 0.2) + (g.uh * 0.3) + (g.pts * 0.25) + (g.pas * 0.25));
+                const kkm = inst.kkms[m] || 75;
+                const tuntas = akhir >= kkm;
+                return `
+                    <div class="p-2 border rounded bg-white flex justify-between items-center mb-1">
+                        <div>
+                            <strong class="text-emerald-800">${m}</strong>
+                            <p class="text-[10px] text-slate-500">Tugas: ${g.tugas} | UH: ${g.uh} | PTS: ${g.pts} | PAS: ${g.pas}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold text-slate-800">${akhir}</span>
+                            <span class="block text-[10px] ${tuntas ? 'text-emerald-600' : 'text-red-600'} font-semibold">${tuntas ? 'Tuntas' : 'Remedial'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 3. Catatan Karakter / Prestasi Siswa
+            const behDiv = document.getElementById('dossier-behavior-list');
+            const studentBehaviors = (inst.behaviors || []).filter(b => b.studentId === s.id || b.name.includes(s.name));
+            if (behDiv) {
+                behDiv.innerHTML = studentBehaviors.length === 0 ? '<p class="text-slate-400 italic">Belum ada catatan khusus.</p>' :
+                    studentBehaviors.map(b => `<div class="p-2 border rounded bg-slate-50 mb-1"><strong>${b.date}</strong> [${b.mapel || 'Umum'}]: ${b.desc}</div>`).join('');
+            }
+
+            document.getElementById('student-dossier-modal').classList.remove('hidden');
+        };
+
+        window.closeDossierModal = function() {
+            document.getElementById('student-dossier-modal').classList.add('hidden');
+        };
+
+        window.sendStudentWAReport = function() {
+            const s = window.activeDossierStudent;
+            if (!s) return;
+            const text = `Assalamu'alaikum Wr. Wb. Bapak/Ibu Wali Murid dari ananda *${s.name}* (${appData.currentInst} Darul Falah).\nBerikut kami sampaikan laporan perkembangan belajar ananda secara ringkas: Alhamdulillah ananda aktif mengikuti pembelajaran di kelas ${s.rombel}.\nTerima kasih. Wassalamu'alaikum Wr. Wb.`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         };
 
         // ALAT KELAS
@@ -1907,100 +1982,6 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             populateDropdowns();
             renderDashboard();
             alert('Siswa berhasil ditambahkan & disinkronkan ke Cloud!');
-        };
-
-        // FITUR CSV IMPOR & EKSPOR
-        window.downloadStudentCSVTemplate = function() {
-            const csvContent = "data:text/csv;charset=utf-8,Nama Lengkap,Nama Panggilan,Rombel\nAchmad Zakarya,Zaka,4A\nAdinda Karunia Fitri,Adinda,4A";
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Template_Siswa_${appData.currentInst}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        };
-
-        window.exportCurrentStudentsCSV = function() {
-            const inst = appData[appData.currentInst];
-            let csv = "Nama Lengkap,Nama Panggilan,Rombel\n";
-            inst.students.forEach(s => {
-                csv += `"${s.name}","${s.nickname || ''}","${s.rombel}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `Data_Siswa_${appData.currentInst}_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        };
-
-        window.handleStudentCSVUpload = function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                const lines = evt.target.result.split('\n');
-                const inst = appData[appData.currentInst];
-                let added = 0;
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    const parts = line.split(',').map(p => p.replace(/"/g, '').trim());
-                    if (parts.length >= 3 && parts[0]) {
-                        const sName = parts[0];
-                        const sNick = parts[1];
-                        const sRombel = parts[2];
-                        if (!inst.rombels.includes(sRombel)) {
-                            inst.rombels.push(sRombel);
-                        }
-                        inst.students.push({
-                            id: 's_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                            name: sName,
-                            nickname: sNick,
-                            rombel: sRombel
-                        });
-                        added++;
-                    }
-                }
-                saveDatabase();
-                populateDropdowns();
-                renderMasterLists();
-                renderDashboard();
-                alert(`Berhasil mengimpor ${added} siswa ke ${appData.currentInst} dan menyinkronkannya ke Cloud!`);
-            };
-            reader.readAsText(file);
-        };
-
-        // DOSSIER / PROFIL SISWA
-        window.openDossierModal = function(studentId) {
-            const inst = appData[appData.currentInst];
-            const s = inst.students.find(x => x.id === studentId);
-            if (!s) return;
-            window.activeDossierStudent = s;
-            document.getElementById('dossier-name').textContent = s.name;
-            document.getElementById('dossier-avatar').textContent = s.name.charAt(0);
-            document.getElementById('dossier-sub').textContent = `Panggilan: ${s.nickname || '-'} | Rombel: ${s.rombel} (${appData.currentInst})`;
-            document.getElementById('dossier-att-summary').textContent = `Kehadiran aktif di rombel ${s.rombel}.`;
-
-            const gradesDiv = document.getElementById('dossier-grades-table');
-            gradesDiv.innerHTML = inst.mapels.map(m => {
-                const key = `${s.rombel}_${m}`;
-                const val = (inst.grades[key] && inst.grades[key][s.id]) ? inst.grades[key][s.id].pas : 80;
-                return `<div class="flex justify-between border-b pb-1"><span>${m}</span><span class="font-bold text-emerald-700">${val}</span></div>`;
-            }).join('');
-
-            document.getElementById('student-dossier-modal').classList.remove('hidden');
-        };
-        window.closeDossierModal = function() {
-            document.getElementById('student-dossier-modal').classList.add('hidden');
-        };
-        window.sendStudentWAReport = function() {
-            const s = window.activeDossierStudent;
-            if (!s) return;
-            const text = `Assalamu'alaikum Wr. Wb. Bapak/Ibu Wali Murid dari ananda *${s.name}* (${appData.currentInst} Darul Falah).\nBerikut kami sampaikan laporan perkembangan belajar ananda secara ringkas: Alhamdulillah ananda aktif mengikuti pembelajaran di kelas ${s.rombel}.\nTerima kasih. Wassalamu'alaikum Wr. Wb.`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         };
 
         // GLOBAL SEARCH SISWA
