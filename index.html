@@ -303,11 +303,12 @@
             </div>
         </section>
 
-        <!-- TAB 7: JURNAL SIKAP & KARAKTER (DENGAN AUTOCOMPLETE ALA EXCEL) -->
+        <!-- TAB 7: JURNAL SIKAP & KARAKTER (DENGAN MAPEL & FILTER MAPEL) -->
         <section id="tab-sikap" class="tab-pane hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Form Pencatatan Sikap -->
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
-                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Catatan Sikap & Ibadah</h3>
+                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Catatan Sikap & Prestasi Siswa</h3>
                     <div>
                         <label class="text-xs font-medium text-slate-600">Tanggal</label>
                         <input type="date" id="behavior-date" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300">
@@ -315,19 +316,37 @@
                     <div>
                         <label class="text-xs font-medium text-slate-600">Pilih Siswa (Ketik Nama / Dropdown)</label>
                         <input list="behavior-student-datalist" id="behavior-student-input" placeholder="Ketik nama depan/panggilan..." class="w-full text-xs mt-1 p-2 border rounded-xl border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
-                        <datalist id="behavior-student-datalist">
-                            <!-- Diisi dinamis via JS -->
-                        </datalist>
+                        <datalist id="behavior-student-datalist"></datalist>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-slate-600">Deskripsi Kejadian</label>
-                        <textarea id="behavior-desc" rows="3" placeholder="Uraikan tindakan positif atau catatan pembinaan..." class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
+                        <label class="text-xs font-medium text-slate-600">Mata Pelajaran Terkait</label>
+                        <select id="behavior-mapel-select" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300 bg-white"></select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Kategori Catatan</label>
+                        <select id="behavior-category-select" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300 bg-white">
+                            <option value="Prestasi / Positif">🌟 Berprestasi / Aktif / Positif</option>
+                            <option value="Bimbingan / Sikap">⚠️ Perlu Pembinaan / Bimbingan</option>
+                            <option value="Ibadah / Akhlak">🕌 Pembiasaan Ibadah / Akhlak</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Deskripsi Catatan</label>
+                        <textarea id="behavior-desc" rows="3" placeholder="Contoh: Menguasai bab thaharah dan aktif menjawab kuis fiqih dengan sangat baik..." class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
                     </div>
                     <button onclick="window.saveBehaviorEntry()" class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700">Simpan Catatan</button>
                 </div>
+
+                <!-- Riwayat Catatan Sikap dengan Filter Mapel -->
                 <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
-                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Riwayat Catatan Karakter</h3>
-                    <div id="behavior-list-container" class="space-y-2 text-xs text-slate-500">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
+                        <h3 class="font-bold text-sm text-slate-800">Riwayat Catatan Karakter & Prestasi</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-medium text-slate-500">Filter Mapel:</span>
+                            <select id="filter-behavior-mapel" onchange="window.renderBehaviors()" class="text-xs p-1.5 rounded-lg border border-slate-300 bg-white font-medium"></select>
+                        </div>
+                    </div>
+                    <div id="behavior-list-container" class="space-y-2 text-xs text-slate-500 max-h-[500px] overflow-y-auto custom-scrollbar">
                         <p>Belum ada catatan sikap.</p>
                     </div>
                 </div>
@@ -385,7 +404,6 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <!-- Kolom Kiri: Kelola Rombel & Mapel -->
                     <div class="space-y-4">
-                        <!-- Box Rombel -->
                         <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
                             <h4 class="font-bold text-xs text-slate-700 mb-2">Daftar Rombel / Kelas</h4>
                             <div class="flex gap-1 mb-2">
@@ -395,7 +413,6 @@
                             <ul id="master-rombel-list" class="space-y-1 text-xs"></ul>
                         </div>
 
-                        <!-- Box Mapel -->
                         <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
                             <h4 class="font-bold text-xs text-slate-700 mb-2">Daftar Mata Pelajaran</h4>
                             <div class="flex gap-1 mb-2">
@@ -700,12 +717,18 @@
                 const el = document.getElementById(id);
                 if (el) el.innerHTML = rombelOpts;
             });
-            ['rekap-mapel-select', 'att-mapel-select', 'grade-mapel', 'journal-mapel'].forEach(id => {
+            ['rekap-mapel-select', 'att-mapel-select', 'grade-mapel', 'journal-mapel', 'behavior-mapel-select'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.innerHTML = mapelOpts;
             });
 
-            // Sinkronisasi Datalist untuk Form Jurnal Sikap (Filter ala Excel)
+            // Filter Mapel untuk Catatan Sikap
+            const filterBMapel = document.getElementById('filter-behavior-mapel');
+            if (filterBMapel) {
+                filterBMapel.innerHTML = `<option value="">Semua Mapel</option>` + mapelOpts;
+            }
+
+            // Datalist Autocomplete Siswa untuk Sikap
             const bDatalist = document.getElementById('behavior-student-datalist');
             if (bDatalist) {
                 bDatalist.innerHTML = inst.students.map(s => `
@@ -954,30 +977,60 @@
             alert('Fitur jadwal mengajar terintegrasi aktif.');
         };
 
-        // JURNAL KARAKTER (DENGAN LOGIKA AUTOCOMPLETE)
+        // JURNAL KARAKTER (DENGAN MAPEL & FILTER MAPEL)
         function renderBehaviors() {
             const inst = appData[appData.currentInst];
+            const filterMapel = document.getElementById('filter-behavior-mapel')?.value || '';
             const container = document.getElementById('behavior-list-container');
-            container.innerHTML = inst.behaviors.length === 0 ? '<p>Belum ada catatan sikap.</p>' :
-                inst.behaviors.map(b => `<div class="p-2 border rounded bg-slate-50">${b.date} - <strong>${b.name}</strong>: ${b.desc}</div>`).join('');
+            
+            const filtered = filterMapel ? inst.behaviors.filter(b => b.mapel === filterMapel) : inst.behaviors;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="p-3 text-slate-400 italic">Belum ada catatan karakter/prestasi ${filterMapel ? 'untuk mapel ' + filterMapel : ''}.</p>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(b => `
+                <div class="p-3 border rounded-xl bg-slate-50 space-y-1">
+                    <div class="flex flex-wrap items-center justify-between gap-1">
+                        <span class="font-bold text-slate-800">${b.name}</span>
+                        <div class="flex gap-1.5 items-center">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${b.mapel || 'Umum'}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 text-slate-700">${b.category || 'Catatan'}</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-600">${b.desc}</p>
+                    <p class="text-[10px] text-slate-400">${b.date}</p>
+                </div>
+            `).join('');
         }
+
         window.saveBehaviorEntry = function() {
             const date = document.getElementById('behavior-date').value;
             const rawInput = document.getElementById('behavior-student-input').value.trim();
+            const mapel = document.getElementById('behavior-mapel-select').value;
+            const category = document.getElementById('behavior-category-select').value;
             const desc = document.getElementById('behavior-desc').value.trim();
             const inst = appData[appData.currentInst];
 
-            // Mencocokkan input dengan daftar siswa
             const s = inst.students.find(x => rawInput.includes(x.name) || x.name.toLowerCase() === rawInput.toLowerCase());
             if (!rawInput || !s) return alert('Pilih atau ketik nama siswa yang terdaftar!');
-            if (!desc) return alert('Deskripsi kejadian wajib diisi!');
+            if (!desc) return alert('Deskripsi catatan sikap / prestasi wajib diisi!');
 
-            inst.behaviors.unshift({ date, name: `${s.name} (${s.rombel})`, desc });
+            inst.behaviors.unshift({
+                date,
+                studentId: s.id,
+                name: `${s.name} (${s.rombel})`,
+                mapel,
+                category,
+                desc
+            });
+
             saveDatabase();
             document.getElementById('behavior-desc').value = '';
             document.getElementById('behavior-student-input').value = '';
             renderBehaviors();
-            alert('Catatan sikap berhasil disimpan!');
+            alert('Catatan sikap/prestasi berhasil disimpan!');
         };
 
         // ALAT KELAS
