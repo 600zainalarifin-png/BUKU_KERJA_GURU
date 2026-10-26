@@ -357,7 +357,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             </div>
         </section>
 
-        <!-- TAB 7: JURNAL SIKAP & KARAKTER (DENGAN FILTER KELAS & EDIT/HAPUS & EKSPOR/IMPOR CSV) -->
+        <!-- TAB 7: JURNAL SIKAP & KARAKTER -->
         <section id="tab-sikap" class="tab-pane hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Form Pencatatan Sikap -->
@@ -395,7 +395,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                     <button onclick="window.saveBehaviorEntry()" class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700">Simpan Catatan</button>
                 </div>
 
-                <!-- Riwayat Catatan Sikap dengan Filter Kelas, Mapel, Edit/Hapus & Ekspor/Impor -->
+                <!-- Riwayat Catatan Sikap -->
                 <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
                         <h3 class="font-bold text-sm text-slate-800">Riwayat Catatan Karakter & Prestasi</h3>
@@ -973,15 +973,16 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
 
         function populateDropdowns() {
             const inst = appData[appData.currentInst];
-            const rombelOpts = inst.rombels.map(r => `<option value="${r}">${r}</option>`).join('');
-            const mapelOpts = inst.mapels.map(m => `<option value="${m}">${m}</option>`).join('');
+            if (!inst) return;
+            const rombelOpts = (inst.rombels || []).map(r => `<option value="${r}">${r}</option>`).join('');
+            const mapelOpts = (inst.mapels || []).map(m => `<option value="${m}">${m}</option>`).join('');
 
             ['rekap-rombel-select', 'att-rombel-select', 'grade-rombel', 'journal-rombel', 'picker-rombel-select', 'group-rombel-select', 'filter-master-rombel', 'new-student-rombel', 'sch-rombel', 'behavior-rombel-filter'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     const prev = el.value;
                     el.innerHTML = rombelOpts;
-                    if (inst.rombels.includes(prev)) el.value = prev;
+                    if (inst.rombels && inst.rombels.includes(prev)) el.value = prev;
                 }
             });
             ['rekap-mapel-select', 'att-mapel-select', 'grade-mapel', 'journal-mapel', 'behavior-mapel-select', 'sch-mapel'].forEach(id => {
@@ -989,7 +990,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 if (el) {
                     const prev = el.value;
                     el.innerHTML = mapelOpts;
-                    if (inst.mapels.includes(prev)) el.value = prev;
+                    if (inst.mapels && inst.mapels.includes(prev)) el.value = prev;
                 }
             });
 
@@ -998,13 +999,13 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             if (fJRom) {
                 const prev = fJRom.value;
                 fJRom.innerHTML = `<option value="">Semua Rombel</option>` + rombelOpts;
-                if (inst.rombels.includes(prev)) fJRom.value = prev;
+                if (inst.rombels && inst.rombels.includes(prev)) fJRom.value = prev;
             }
             const fJMap = document.getElementById('filter-jurnal-mapel');
             if (fJMap) {
                 const prev = fJMap.value;
                 fJMap.innerHTML = `<option value="">Semua Mapel</option>` + mapelOpts;
-                if (inst.mapels.includes(prev)) fJMap.value = prev;
+                if (inst.mapels && inst.mapels.includes(prev)) fJMap.value = prev;
             }
 
             // Filter Karakter Dropdowns
@@ -1012,21 +1013,23 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             if (fBRom) {
                 const prev = fBRom.value;
                 fBRom.innerHTML = `<option value="">Semua Rombel</option>` + rombelOpts;
-                if (inst.rombels.includes(prev)) fBRom.value = prev;
+                if (inst.rombels && inst.rombels.includes(prev)) fBRom.value = prev;
             }
             const filterBMapel = document.getElementById('filter-behavior-mapel');
             if (filterBMapel) {
                 const prev = filterBMapel.value;
                 filterBMapel.innerHTML = `<option value="">Semua Mapel</option>` + mapelOpts;
-                filterBMapel.value = prev;
+                if (inst.mapels && inst.mapels.includes(prev)) filterBMapel.value = prev;
             }
 
             window.updateBehaviorStudentList();
         }
 
         window.updateBehaviorStudentList = function() {
-            const rombel = document.getElementById('behavior-rombel-filter')?.value;
+            const rombelEl = document.getElementById('behavior-rombel-filter');
+            const rombel = rombelEl ? rombelEl.value : '';
             const inst = appData[appData.currentInst];
+            if (!inst || !inst.students) return;
             const students = rombel ? inst.students.filter(s => s.rombel === rombel) : inst.students;
             const bDatalist = document.getElementById('behavior-student-datalist');
             if (bDatalist) {
@@ -1038,6 +1041,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
 
         function renderDashboard() {
             const inst = appData[appData.currentInst];
+            if (!inst) return;
             document.getElementById('stat-students').textContent = inst.students.length;
             document.getElementById('stat-rombel').textContent = inst.rombels.length;
             document.getElementById('stat-journals').textContent = inst.journals.length;
@@ -1065,8 +1069,11 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
 
         // SPREADSHEET REKAP PERKEMBANGAN
         window.loadRekapSheet = function() {
-            const rombel = document.getElementById('rekap-rombel-select').value;
-            const mapel = document.getElementById('rekap-mapel-select').value;
+            const rombelEl = document.getElementById('rekap-rombel-select');
+            const mapelEl = document.getElementById('rekap-mapel-select');
+            if (!rombelEl || !mapelEl) return;
+            const rombel = rombelEl.value;
+            const mapel = mapelEl.value;
             const inst = appData[appData.currentInst];
             const key = `${rombel}_${mapel}`;
             
@@ -1248,11 +1255,15 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
 
         // DAFTAR NILAI & KKM
         window.loadGradeSheet = function() {
-            const rombel = document.getElementById('grade-rombel').value;
-            const mapel = document.getElementById('grade-mapel').value;
+            const rombelEl = document.getElementById('grade-rombel');
+            const mapelEl = document.getElementById('grade-mapel');
+            if (!rombelEl || !mapelEl) return;
+            const rombel = rombelEl.value;
+            const mapel = mapelEl.value;
             const inst = appData[appData.currentInst];
             const kkm = inst.kkms[mapel] || 75;
-            document.getElementById('grade-kkm-input').value = kkm;
+            const kkmInput = document.getElementById('grade-kkm-input');
+            if (kkmInput) kkmInput.value = kkm;
 
             const key = `${rombel}_${mapel}`;
             if (!inst.grades[key]) inst.grades[key] = {};
@@ -1260,6 +1271,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             const students = inst.students.filter(s => s.rombel === rombel);
 
             const tbody = document.getElementById('grade-tbody');
+            if (!tbody) return;
             tbody.innerHTML = students.map((s, idx) => {
                 autoSyncRekapToGrades(key, s.id);
 
@@ -1365,14 +1377,19 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             window.loadAttendanceSheet();
         };
         window.loadAttendanceSheet = function() {
-            const rombel = document.getElementById('att-rombel-select').value;
-            const mapel = document.getElementById('att-mapel-select').value;
+            const rombelEl = document.getElementById('att-rombel-select');
+            const mapelEl = document.getElementById('att-mapel-select');
+            if (!rombelEl || !mapelEl) return;
+            const rombel = rombelEl.value;
+            const mapel = mapelEl.value;
             const inst = appData[appData.currentInst];
             const students = inst.students.filter(s => s.rombel === rombel);
-            const date = document.getElementById('attendance-date').value || '2026-10-26';
+            const dateEl = document.getElementById('attendance-date');
+            const date = dateEl ? dateEl.value : '2026-10-26';
 
             const thead = document.getElementById('attendance-table-thead');
             const tbody = document.getElementById('attendance-tbody');
+            if (!thead || !tbody) return;
 
             thead.innerHTML = `<tr><th class="p-3 w-12 text-center">No</th><th class="p-3">Nama Lengkap</th><th class="p-3 text-center w-24">Panggilan</th><th class="p-3 text-center w-48">Status Hadir</th></tr>`;
             const key = `${date}_${rombel}_${mapel}`;
@@ -1606,7 +1623,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             renderSchedules();
         };
 
-        // JURNAL SIKAP & KARAKTER (DENGAN FILTER KELAS, EDIT/HAPUS, EKSPOR/IMPOR CSV)
+        // JURNAL SIKAP & KARAKTER
         window.renderBehaviors = function() {
             const inst = appData[appData.currentInst];
             const fRom = document.getElementById('filter-behavior-rombel')?.value || '';
@@ -1735,6 +1752,164 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 alert(`Berhasil mengimpor ${added} catatan karakter ke Cloud!`);
             };
             reader.readAsText(file);
+        };
+
+        // MASTER DATA SISWA
+        function renderMasterLists() {
+            const inst = appData[appData.currentInst];
+            if (!inst) return;
+            
+            const rList = document.getElementById('master-rombel-list');
+            if (rList) {
+                rList.innerHTML = (inst.rombels || []).map(r => `
+                    <li class="flex items-center justify-between p-1.5 bg-white rounded border border-slate-200">
+                        <span class="font-medium text-slate-700">${r}</span>
+                        <button onclick="window.deleteRombel('${r}')" class="text-red-500 hover:text-red-700 font-bold px-1" title="Hapus Rombel">&times;</button>
+                    </li>
+                `).join('');
+            }
+
+            const mList = document.getElementById('master-mapel-list');
+            if (mList) {
+                mList.innerHTML = (inst.mapels || []).map(m => `
+                    <li class="flex items-center justify-between p-1.5 bg-white rounded border border-slate-200">
+                        <span class="font-medium text-slate-700">${m}</span>
+                        <button onclick="window.deleteMapel('${m}')" class="text-red-500 hover:text-red-700 font-bold px-1" title="Hapus Mapel">&times;</button>
+                    </li>
+                `).join('');
+            }
+
+            window.renderMasterStudentTable();
+        }
+
+        window.renderMasterStudentTable = function() {
+            const filterEl = document.getElementById('filter-master-rombel');
+            const filterRombel = filterEl ? filterEl.value : '';
+            const inst = appData[appData.currentInst];
+            if (!inst || !inst.students) return;
+            const filtered = filterRombel ? inst.students.filter(s => s.rombel === filterRombel) : inst.students;
+            const badge = document.getElementById('student-count-badge');
+            if (badge) badge.textContent = `${filtered.length} Siswa (Total Madrasah: ${inst.students.length})`;
+
+            const tbody = document.getElementById('student-roster-tbody');
+            if (!tbody) return;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Belum ada siswa di rombel ini.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((s, idx) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-2.5 text-center text-slate-400 font-medium">${idx + 1}</td>
+                    <td class="p-2.5 font-semibold text-emerald-800 cursor-pointer hover:underline" onclick="window.openDossierModal('${s.id}')">
+                        👤 ${s.name}
+                    </td>
+                    <td class="p-2.5 text-center text-slate-600">${s.nickname || '-'}</td>
+                    <td class="p-2.5 text-center font-medium text-slate-700">${s.rombel}</td>
+                    <td class="p-2.5 text-center space-x-2">
+                        <button onclick="window.editStudentPrompt('${s.id}')" class="text-blue-600 hover:underline font-semibold text-xs">Edit</button>
+                        <button onclick="window.deleteStudent('${s.id}')" class="text-red-600 hover:underline font-semibold text-xs">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.addNewRombel = function() {
+            const input = document.getElementById('new-rombel-input');
+            const val = input.value.trim();
+            if (!val) return;
+            const inst = appData[appData.currentInst];
+            if (!inst.rombels.includes(val)) {
+                inst.rombels.push(val);
+                saveDatabase();
+                input.value = '';
+                populateDropdowns();
+                renderMasterLists();
+            }
+        };
+
+        window.addNewMapel = function() {
+            const input = document.getElementById('new-mapel-input');
+            const val = input.value.trim();
+            if (!val) return;
+            const inst = appData[appData.currentInst];
+            if (!inst.mapels.includes(val)) {
+                inst.mapels.push(val);
+                if (!inst.kkms) inst.kkms = {};
+                inst.kkms[val] = 75;
+                saveDatabase();
+                input.value = '';
+                populateDropdowns();
+                renderMasterLists();
+            }
+        };
+
+        window.deleteRombel = function(rombelName) {
+            if (!confirm(`Hapus rombel ${rombelName}? Siswa di rombel ini tidak akan terhapus otomatis.`)) return;
+            const inst = appData[appData.currentInst];
+            inst.rombels = inst.rombels.filter(r => r !== rombelName);
+            saveDatabase();
+            populateDropdowns();
+            renderMasterLists();
+        };
+
+        window.deleteMapel = function(mapelName) {
+            if (!confirm(`Hapus mata pelajaran ${mapelName}?`)) return;
+            const inst = appData[appData.currentInst];
+            inst.mapels = inst.mapels.filter(m => m !== mapelName);
+            saveDatabase();
+            populateDropdowns();
+            renderMasterLists();
+        };
+
+        window.deleteStudent = function(sId) {
+            if (!confirm('Yakin ingin menghapus data siswa ini?')) return;
+            const inst = appData[appData.currentInst];
+            inst.students = inst.students.filter(s => s.id !== sId);
+            saveDatabase();
+            window.renderMasterStudentTable();
+            populateDropdowns();
+            renderDashboard();
+        };
+
+        window.editStudentPrompt = function(sId) {
+            const inst = appData[appData.currentInst];
+            const s = inst.students.find(x => x.id === sId);
+            if (!s) return;
+            const newName = prompt('Ubah Nama Lengkap:', s.name);
+            if (newName === null) return;
+            const newNick = prompt('Ubah Nama Panggilan:', s.nickname || '');
+            if (newNick === null) return;
+            
+            s.name = newName.trim() || s.name;
+            s.nickname = newNick.trim() || s.nickname;
+            saveDatabase();
+            window.renderMasterStudentTable();
+            populateDropdowns();
+        };
+
+        window.openAddStudentModal = function() {
+            document.getElementById('add-student-modal').classList.remove('hidden');
+        };
+        window.closeAddStudentModal = function() {
+            document.getElementById('add-student-modal').classList.add('hidden');
+        };
+        window.saveNewStudent = function() {
+            const name = document.getElementById('new-student-name').value.trim();
+            const nickname = document.getElementById('new-student-nickname').value.trim();
+            const rombel = document.getElementById('new-student-rombel').value;
+            if (!name) return alert('Nama siswa wajib diisi');
+            const newId = 's_' + Date.now();
+            appData[appData.currentInst].students.push({ id: newId, name, nickname, rombel });
+            saveDatabase();
+            document.getElementById('new-student-name').value = '';
+            document.getElementById('new-student-nickname').value = '';
+            window.closeAddStudentModal();
+            window.renderMasterStudentTable();
+            populateDropdowns();
+            renderDashboard();
+            alert('Siswa berhasil ditambahkan & disinkronkan ke Cloud!');
         };
 
         // DOSSIER / PORTOFOLIO LENGKAP SISWA
