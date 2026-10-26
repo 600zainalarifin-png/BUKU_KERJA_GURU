@@ -190,7 +190,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             </div>
         </section>
 
-        <!-- TAB 2: REKAP PERKEMBANGAN -->
+        <!-- TAB 2: REKAP PERKEMBANGAN (OTOMATIS SINKRON KE NILAI) -->
         <section id="tab-rekap" class="tab-pane hidden space-y-4">
             <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
                 <div class="flex flex-wrap items-center gap-3">
@@ -213,7 +213,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                     <table class="w-full text-xs text-left border-collapse" id="rekap-spreadsheet-table"></table>
                 </div>
             </div>
-            <p class="text-[11px] text-slate-400 italic">💡 Pintasan: Tekan <strong>Enter</strong> untuk turun ke baris berikutnya, dan tekan <strong>Tab</strong> untuk bergeser ke kolom kanan.</p>
+            <p class="text-[11px] text-slate-400 italic">💡 Pintasan & Sinkronisasi: Masukkan angka nilai harian. Data akan otomatis masuk ke komponen <strong>Tugas</strong> di Daftar Nilai & KKM. Tekan <strong>Enter</strong> untuk turun dan <strong>Tab</strong> ke kanan.</p>
         </section>
 
         <!-- TAB 3: PRESENSI -->
@@ -271,7 +271,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                             <tr>
                                 <th class="p-3 text-center w-12">No</th>
                                 <th class="p-3">Nama Lengkap Siswa</th>
-                                <th class="p-3 text-center w-20">Tugas (20%)</th>
+                                <th class="p-3 text-center w-20" title="Sinkron otomatis dari Rekap Perkembangan">Tugas (20%) ⚡</th>
                                 <th class="p-3 text-center w-20">UH (30%)</th>
                                 <th class="p-3 text-center w-20">PTS (25%)</th>
                                 <th class="p-3 text-center w-20">PAS (25%)</th>
@@ -285,10 +285,9 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             </div>
         </section>
 
-        <!-- TAB 5: JURNAL MENGAJAR (DENGAN FILTER, EDIT, EKSPOR/IMPOR EXCEL) -->
+        <!-- TAB 5: JURNAL MENGAJAR -->
         <section id="tab-jurnal" class="tab-pane hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Form Tambah Jurnal -->
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Tambah Jurnal Mengajar</h3>
                     <div>
@@ -312,7 +311,6 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                     <button onclick="window.saveJournalEntry()" class="w-full py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">Simpan Jurnal</button>
                 </div>
 
-                <!-- Riwayat Jurnal dengan Filter & Ekspor/Impor -->
                 <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
                         <h3 class="font-bold text-sm text-slate-800">Riwayat Jurnal Pembelajaran</h3>
@@ -350,7 +348,6 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
         <!-- TAB 7: JURNAL SIKAP & KARAKTER -->
         <section id="tab-sikap" class="tab-pane hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Form Pencatatan Sikap -->
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Catatan Sikap & Prestasi Siswa</h3>
                     <div>
@@ -381,7 +378,6 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                     <button onclick="window.saveBehaviorEntry()" class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700">Simpan Catatan</button>
                 </div>
 
-                <!-- Riwayat Catatan Sikap -->
                 <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
                         <h3 class="font-bold text-sm text-slate-800">Riwayat Catatan Karakter & Prestasi</h3>
@@ -942,7 +938,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             if (appData.currentTab === 'rekap') window.loadRekapSheet();
             if (appData.currentTab === 'presensi') window.loadAttendanceSheet();
             if (appData.currentTab === 'nilai') window.loadGradeSheet();
-            if (appData.currentTab === 'jurnal') renderJournalList();
+            if (appData.currentTab === 'jurnal') window.renderJournalList();
             if (appData.currentTab === 'jadwal') renderSchedules();
             if (appData.currentTab === 'sikap') renderBehaviors();
             if (appData.currentTab === 'master') renderMasterLists();
@@ -1026,7 +1022,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 warnings.map(w => `<div class="p-2 rounded-xl bg-red-50 text-red-700 flex justify-between font-medium"><span>${w.name}</span><span>${w.reason}</span></div>`).join('');
         }
 
-        // SPREADSHEET REKAP PERKEMBANGAN
+        // SPREADSHEET REKAP PERKEMBANGAN (OTOMATIS SINKRON KE NILAI TUGAS)
         window.loadRekapSheet = function() {
             const rombel = document.getElementById('rekap-rombel-select').value;
             const mapel = document.getElementById('rekap-mapel-select').value;
@@ -1094,12 +1090,36 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             appData[appData.currentInst].rekap[key].labels[idx] = val;
             saveDatabase();
         };
+
         window.saveRekapCell = function(key, studentId, colIdx, val) {
             const inst = appData[appData.currentInst];
             if (!inst.rekap[key].data[studentId]) inst.rekap[key].data[studentId] = [];
             inst.rekap[key].data[studentId][colIdx] = val;
+
+            // OTOMATIS SINKRON KE DAFTAR NILAI (KOMPONEN TUGAS)
+            autoSyncRekapToGrades(key, studentId);
+
             saveDatabase();
         };
+
+        function autoSyncRekapToGrades(rekapKey, studentId) {
+            const inst = appData[appData.currentInst];
+            const rData = inst.rekap[rekapKey];
+            if (!rData || !rData.data[studentId]) return;
+
+            if (!inst.grades[rekapKey]) inst.grades[rekapKey] = {};
+            if (!inst.grades[rekapKey][studentId]) {
+                inst.grades[rekapKey][studentId] = { tugas: 75, uh: 75, pts: 75, pas: 75 };
+            }
+
+            // Ambil semua nilai angka dari rekap harian siswa ini dan hitung rata-ratanya
+            const scores = rData.data[studentId].map(v => parseFloat(v)).filter(v => !isNaN(v));
+            if (scores.length > 0) {
+                const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+                inst.grades[rekapKey][studentId].tugas = avg;
+            }
+        }
+
         window.addRekapMeetingColumn = function() {
             const rombel = document.getElementById('rekap-rombel-select').value;
             const mapel = document.getElementById('rekap-mapel-select').value;
@@ -1129,13 +1149,16 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
 
             const tbody = document.getElementById('grade-tbody');
             tbody.innerHTML = students.map((s, idx) => {
+                // Pastikan nilai tugas tersinkron dari rekap jika ada
+                autoSyncRekapToGrades(key, s.id);
+
                 const g = gData[s.id] || { tugas: 80, uh: 75, pts: 80, pas: 80 };
                 const akhir = Math.round((g.tugas * 0.2) + (g.uh * 0.3) + (g.pts * 0.25) + (g.pas * 0.25));
                 const isTuntas = akhir >= kkm;
                 return `<tr class="hover:bg-slate-50">
                     <td class="p-3 text-center text-slate-400">${idx + 1}</td>
                     <td class="p-3 font-medium text-emerald-800 cursor-pointer hover:underline" onclick="window.openDossierModal('${s.id}')">👤 ${s.name}</td>
-                    <td class="p-2 text-center"><input type="number" value="${g.tugas}" onchange="window.saveGradeVal('${key}', '${s.id}', 'tugas', this.value)" class="w-16 p-1 rounded border text-center"></td>
+                    <td class="p-2 text-center"><input type="number" value="${g.tugas}" onchange="window.saveGradeVal('${key}', '${s.id}', 'tugas', this.value)" class="w-16 p-1 rounded border text-center font-bold text-teal-700 bg-teal-50" title="Tersinkron otomatis dari rekap harian"></td>
                     <td class="p-2 text-center"><input type="number" value="${g.uh}" onchange="window.saveGradeVal('${key}', '${s.id}', 'uh', this.value)" class="w-16 p-1 rounded border text-center"></td>
                     <td class="p-2 text-center"><input type="number" value="${g.pts}" onchange="window.saveGradeVal('${key}', '${s.id}', 'pts', this.value)" class="w-16 p-1 rounded border text-center"></td>
                     <td class="p-2 text-center"><input type="number" value="${g.pas}" onchange="window.saveGradeVal('${key}', '${s.id}', 'pas', this.value)" class="w-16 p-1 rounded border text-center"></td>
@@ -1208,7 +1231,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             window.loadAttendanceSheet();
         };
 
-        // JURNAL MENGAJAR (DENGAN FILTER, EDIT, EKSPOR & IMPOR CSV)
+        // JURNAL MENGAJAR (DENGAN FILTER, EDIT, EKSPOR & IMPOR)
         window.renderJournalList = function() {
             const inst = appData[appData.currentInst];
             const fRom = document.getElementById('filter-jurnal-rombel')?.value || '';
@@ -1312,7 +1335,6 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
-                    // Sederhana parsing CSV
                     const parts = line.split(',').map(p => p.replace(/"/g, '').trim());
                     if (parts.length >= 4 && parts[0]) {
                         inst.journals.push({
@@ -1333,7 +1355,7 @@ create policy "Akses Publik" on app_storage for all using (true) with check (tru
             reader.readAsText(file);
         };
 
-        // JADWAL MENGAJAR (INTERAKTIF)
+        // JADWAL MENGAJAR
         function renderSchedules() {
             const inst = appData[appData.currentInst];
             const container = document.getElementById('schedule-matrix-container');
