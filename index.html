@@ -303,7 +303,7 @@
             </div>
         </section>
 
-        <!-- TAB 7: JURNAL SIKAP & KARAKTER -->
+        <!-- TAB 7: JURNAL SIKAP & KARAKTER (DENGAN AUTOCOMPLETE ALA EXCEL) -->
         <section id="tab-sikap" class="tab-pane hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
@@ -313,12 +313,15 @@
                         <input type="date" id="behavior-date" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300">
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-slate-600">Pilih Siswa</label>
-                        <select id="behavior-student-select" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></select>
+                        <label class="text-xs font-medium text-slate-600">Pilih Siswa (Ketik Nama / Dropdown)</label>
+                        <input list="behavior-student-datalist" id="behavior-student-input" placeholder="Ketik nama depan/panggilan..." class="w-full text-xs mt-1 p-2 border rounded-xl border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <datalist id="behavior-student-datalist">
+                            <!-- Diisi dinamis via JS -->
+                        </datalist>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-slate-600">Deskripsi Kejadian</label>
-                        <textarea id="behavior-desc" rows="3" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
+                        <textarea id="behavior-desc" rows="3" placeholder="Uraikan tindakan positif atau catatan pembinaan..." class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
                     </div>
                     <button onclick="window.saveBehaviorEntry()" class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700">Simpan Catatan</button>
                 </div>
@@ -702,10 +705,15 @@
                 if (el) el.innerHTML = mapelOpts;
             });
 
-            const bSelect = document.getElementById('behavior-student-select');
-            if (bSelect) {
-                bSelect.innerHTML = inst.students.map(s => `<option value="${s.id}">${s.name} (${s.rombel})</option>`).join('');
+            // Sinkronisasi Datalist untuk Form Jurnal Sikap (Filter ala Excel)
+            const bDatalist = document.getElementById('behavior-student-datalist');
+            if (bDatalist) {
+                bDatalist.innerHTML = inst.students.map(s => `
+                    <option value="${s.name} (${s.rombel})">${s.nickname ? 'Panggilan: ' + s.nickname : s.rombel}</option>
+                `).join('');
             }
+            const bInput = document.getElementById('behavior-student-input');
+            if (bInput) bInput.value = '';
         }
 
         function renderDashboard() {
@@ -729,7 +737,7 @@
                 warnings.map(w => `<div class="p-2 rounded-xl bg-red-50 text-red-700 flex justify-between font-medium"><span>${w.name}</span><span>${w.reason}</span></div>`).join('');
         }
 
-        // SPREADSHEET REKAP PERKEMBANGAN DENGAN KEYBOARD ENTER & TAB
+        // SPREADSHEET REKAP PERKEMBANGAN
         window.loadRekapSheet = function() {
             const rombel = document.getElementById('rekap-rombel-select').value;
             const mapel = document.getElementById('rekap-mapel-select').value;
@@ -931,7 +939,7 @@
             alert('Jurnal berhasil disimpan!');
         };
 
-        // JADWAL MENGAJAR & JURNAL SIKAP
+        // JADWAL MENGAJAR
         function renderSchedules() {
             const container = document.getElementById('schedule-matrix-container');
             const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -946,6 +954,7 @@
             alert('Fitur jadwal mengajar terintegrasi aktif.');
         };
 
+        // JURNAL KARAKTER (DENGAN LOGIKA AUTOCOMPLETE)
         function renderBehaviors() {
             const inst = appData[appData.currentInst];
             const container = document.getElementById('behavior-list-container');
@@ -954,16 +963,21 @@
         }
         window.saveBehaviorEntry = function() {
             const date = document.getElementById('behavior-date').value;
-            const sId = document.getElementById('behavior-student-select').value;
-            const desc = document.getElementById('behavior-desc').value;
+            const rawInput = document.getElementById('behavior-student-input').value.trim();
+            const desc = document.getElementById('behavior-desc').value.trim();
             const inst = appData[appData.currentInst];
-            const s = inst.students.find(x => x.id === sId);
-            if (!desc || !s) return alert('Lengkapi catatan sikap!');
-            inst.behaviors.unshift({ date, name: s.name, desc });
+
+            // Mencocokkan input dengan daftar siswa
+            const s = inst.students.find(x => rawInput.includes(x.name) || x.name.toLowerCase() === rawInput.toLowerCase());
+            if (!rawInput || !s) return alert('Pilih atau ketik nama siswa yang terdaftar!');
+            if (!desc) return alert('Deskripsi kejadian wajib diisi!');
+
+            inst.behaviors.unshift({ date, name: `${s.name} (${s.rombel})`, desc });
             saveDatabase();
             document.getElementById('behavior-desc').value = '';
+            document.getElementById('behavior-student-input').value = '';
             renderBehaviors();
-            alert('Catatan sikap disimpan!');
+            alert('Catatan sikap berhasil disimpan!');
         };
 
         // ALAT KELAS
@@ -1115,6 +1129,7 @@
             inst.students = inst.students.filter(s => s.id !== sId);
             saveDatabase();
             renderMasterStudentTable();
+            populateDropdowns();
             renderDashboard();
         };
 
@@ -1131,6 +1146,7 @@
             s.nickname = newNick.trim() || s.nickname;
             saveDatabase();
             renderMasterStudentTable();
+            populateDropdowns();
         };
 
         window.openAddStudentModal = function() {
@@ -1151,6 +1167,7 @@
             document.getElementById('new-student-nickname').value = '';
             window.closeAddStudentModal();
             renderMasterStudentTable();
+            populateDropdowns();
             renderDashboard();
             alert('Siswa berhasil ditambahkan!');
         };
