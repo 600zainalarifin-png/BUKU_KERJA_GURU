@@ -22,7 +22,7 @@
     <style>
         @media print {
             @page {
-                size: 210mm 330mm; /* Standar Ukuran Kertas F4 / Folio */
+                size: 210mm 330mm;
                 margin: 12mm 15mm;
             }
             body {
@@ -55,7 +55,6 @@
     <!-- HEADER & NAVBAR -->
     <header class="no-print sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-            <!-- Brand / Logo -->
             <div class="flex items-center space-x-3">
                 <div id="inst-badge" class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
                     MI
@@ -69,9 +68,7 @@
                 </div>
             </div>
 
-            <!-- Switcher Madrasah & Pencarian Cepat -->
             <div class="flex items-center flex-wrap gap-2">
-                <!-- Institution Switcher -->
                 <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
                     <button id="btn-switch-mi" onclick="window.setInstitution('MI')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white shadow-sm transition">
                         MI Darul Falah
@@ -81,19 +78,862 @@
                     </button>
                 </div>
 
-                <!-- Global Search Input -->
                 <div class="relative">
                     <input type="text" id="global-search" oninput="window.handleGlobalStudentSearch(this.value)" placeholder="Cari siswa..." class="text-xs pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-36 sm:w-48 bg-slate-50">
                     <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <!-- Search Dropdown Results -->
                     <div id="search-results-dropdown" class="hidden absolute right-0 mt-1 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto p-1 text-xs"></div>
                 </div>
 
-                <!-- Theme Toggle & Settings -->
-                <button onclick="window.toggleDarkMode()" title="Mode Gelap" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600">🌙</button>
                 <button onclick="window.openSettingsModal()" title="Pengaturan & Backup" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold">⚙️</button>
             </div>
         </div>
 
-        <!-- Horizontal Nav Tabs -->
-        <div class="max-w-7xl mx-auto px-4 overflow-x
+        <div class="max-w-7xl mx-auto px-4 overflow-x-auto custom-scrollbar border-t border-slate-100 flex gap-1 py-1 text-xs font-medium">
+            <button onclick="window.switchTab('dasbor')" class="nav-tab active px-3 py-2 rounded-lg text-emerald-700 bg-emerald-50 whitespace-nowrap font-bold">📊 Dasbor</button>
+            <button onclick="window.switchTab('rekap')" class="nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap">📝 Rekap Perkembangan</button>
+            <button onclick="window.switchTab('presensi')" class="nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap">📅 Presensi Siswa</button>
+            <button onclick="window.switchTab('nilai')" class="nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap">🎯 Daftar Nilai & KKM</button>
+            <button onclick="window.switchTab('jurnal')" class="nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap">📖 Jurnal Mengajar</button>
+            <button onclick="window.switchTab('jadwal')" class="nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap">🕒 Jadwal Mengajar</button>
+            <button onclick="window.switchTab('sikap')" class="nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap">🌟 Jurnal Karakter</button>
+            <button onclick="window.switchTab('alat')" class="nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap">🎲 Alat Kelas</button>
+            <button onclick="window.switchTab('master')" class="nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap">👥 Data Siswa & Rombel</button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- TAB 1: DASBOR -->
+        <section id="tab-dasbor" class="tab-pane space-y-6">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl p-6 shadow-md flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold">Selamat Mengajar, <span id="dash-greeting-name">Ustadz Achmad Zainal Arifin</span>!</h2>
+                    <p class="text-xs text-emerald-100 mt-1">Kelola administrasi, capaian materi, dan evaluasi siswa di MI & MTs Darul Falah secara terintegrasi.</p>
+                </div>
+                <div>
+                    <button onclick="window.openFullReportModal()" class="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-black shadow transition flex items-center gap-2">
+                        📄 Cetak Buku Kerja Guru (F4)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Total Siswa Aktif</p>
+                    <h3 id="stat-students" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Jumlah Rombel</p>
+                    <h3 id="stat-rombel" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Jurnal Terisi</p>
+                    <h3 id="stat-journals" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Rata-rata Kehadiran</p>
+                    <h3 id="stat-attendance" class="text-2xl font-bold text-slate-800 mt-1">100%</h3>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <h3 class="font-bold text-sm text-slate-800">🕒 Agenda Mengajar</h3>
+                    </div>
+                    <div id="agenda-list-container" class="space-y-2 text-xs text-slate-500">
+                        <p>Belum ada agenda khusus hari ini.</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-red-100 p-5 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <h3 class="font-bold text-sm text-red-700">⚠️ Siswa Perlu Perhatian (Early Warning)</h3>
+                        <span class="text-[11px] bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-semibold" id="warning-badge-count">0 Siswa</span>
+                    </div>
+                    <div id="warning-list-container" class="space-y-2 text-xs max-h-48 overflow-y-auto"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: REKAP PERKEMBANGAN -->
+        <section id="tab-rekap" class="tab-pane hidden space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-3">
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-500 uppercase block">Rombel / Kelas</label>
+                        <select id="rekap-rombel-select" onchange="window.loadRekapSheet()" class="text-xs px-3 py-1.5 rounded-xl border border-slate-300 bg-white font-medium"></select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-500 uppercase block">Mata Pelajaran</label>
+                        <select id="rekap-mapel-select" onchange="window.loadRekapSheet()" class="text-xs px-3 py-1.5 rounded-xl border border-slate-300 bg-white font-medium"></select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.addRekapMeetingColumn()" class="px-3 py-1.5 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700">+ Tambah Pertemuan</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-xs text-left border-collapse" id="rekap-spreadsheet-table"></table>
+                </div>
+            </div>
+            <p class="text-[11px] text-slate-400 italic">💡 Pintasan: Tekan <strong>Enter</strong> untuk turun, dan <strong>Tab</strong> untuk ke kanan.</p>
+        </section>
+
+        <!-- TAB 3: PRESENSI -->
+        <section id="tab-presensi" class="tab-pane hidden space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex bg-slate-100 p-1 rounded-xl text-xs font-medium">
+                        <button id="btn-mode-abs-input" onclick="window.toggleAttendanceMode('input')" class="px-3 py-1 rounded-lg bg-white shadow-sm font-semibold text-slate-800">Input Harian</button>
+                        <button id="btn-mode-abs-rekap" onclick="window.toggleAttendanceMode('rekap')" class="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900">Rekapitulasi</button>
+                    </div>
+                    <select id="att-rombel-select" onchange="window.loadAttendanceSheet()" class="text-xs px-3 py-1.5 rounded-xl border border-slate-300 bg-white"></select>
+                    <select id="att-mapel-select" onchange="window.loadAttendanceSheet()" class="text-xs px-3 py-1.5 rounded-xl border border-slate-300 bg-white"></select>
+                    <div id="att-date-container">
+                        <input type="date" id="attendance-date" onchange="window.loadAttendanceSheet()" class="text-xs px-3 py-1.5 rounded-xl border border-slate-300 bg-white">
+                    </div>
+                </div>
+                <div>
+                    <button onclick="window.setAllPresent()" id="btn-all-present" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">Set Semua Hadir (H)</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-100 text-slate-700 uppercase font-semibold text-[11px]" id="attendance-table-thead"></thead>
+                        <tbody id="attendance-tbody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: NILAI & KKM -->
+        <section id="tab-nilai" class="tab-pane hidden space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-3">
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-500 uppercase block">Rombel</label>
+                        <select id="grade-rombel" onchange="window.loadGradeSheet()" class="text-xs px-3 py-1.5 rounded-xl border border-slate-300 bg-white font-medium"></select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-500 uppercase block">Mata Pelajaran</label>
+                        <select id="grade-mapel" onchange="window.loadGradeSheet()" class="text-xs px-3 py-1.5 rounded-xl border border-slate-300 bg-white font-medium"></select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-500 uppercase block">Batas KKM</label>
+                        <input type="number" id="grade-kkm-input" onchange="window.updateKKM(this.value)" min="0" max="100" class="text-xs w-20 px-2 py-1.5 rounded-xl border border-slate-300 font-bold text-center text-emerald-700 bg-emerald-50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-100 text-slate-700 uppercase font-semibold text-[11px]">
+                            <tr>
+                                <th class="p-3 text-center w-12">No</th>
+                                <th class="p-3">Nama Lengkap Siswa</th>
+                                <th class="p-3 text-center w-20">Tugas (20%)</th>
+                                <th class="p-3 text-center w-20">UH (30%)</th>
+                                <th class="p-3 text-center w-20">PTS (25%)</th>
+                                <th class="p-3 text-center w-20">PAS (25%)</th>
+                                <th class="p-3 text-center w-24">Nilai Akhir</th>
+                                <th class="p-3 text-center w-24">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="grade-tbody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: JURNAL MENGAJAR -->
+        <section id="tab-jurnal" class="tab-pane hidden space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Tambah Jurnal</h3>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Tanggal</label>
+                        <input type="date" id="journal-date" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-xs font-medium text-slate-600">Rombel</label>
+                            <select id="journal-rombel" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium text-slate-600">Mapel</label>
+                            <select id="journal-mapel" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Materi</label>
+                        <textarea id="journal-topic" rows="3" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
+                    </div>
+                    <button onclick="window.saveJournalEntry()" class="w-full py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold">Simpan Jurnal</button>
+                </div>
+                <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Riwayat Jurnal</h3>
+                    <div id="journal-list-container" class="space-y-3 max-h-[400px] overflow-y-auto text-xs text-slate-500">
+                        <p>Belum ada catatan jurnal.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: JADWAL -->
+        <section id="tab-jadwal" class="tab-pane hidden space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                <h3 class="font-bold text-base text-slate-800 border-b pb-2">Jadwal Mengajar Mingguan</h3>
+                <div id="schedule-matrix-container" class="text-xs text-slate-500">
+                    <p>Jadwal siap diatur sesuai kebutuhan madrasah.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 7: SIKAP -->
+        <section id="tab-sikap" class="tab-pane hidden space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Catatan Sikap & Ibadah</h3>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Tanggal</label>
+                        <input type="date" id="behavior-date" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300">
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Pilih Siswa</label>
+                        <select id="behavior-student-select" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Deskripsi</label>
+                        <textarea id="behavior-desc" rows="3" class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
+                    </div>
+                    <button onclick="window.saveBehaviorEntry()" class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold">Simpan Catatan</button>
+                </div>
+                <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Riwayat Catatan Karakter</h3>
+                    <div id="behavior-list-container" class="space-y-2 text-xs text-slate-500">
+                        <p>Belum ada catatan sikap.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 8: ALAT KELAS -->
+        <section id="tab-alat" class="tab-pane hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4 text-center">
+                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2 text-left">🎲 Undian Nama Siswa</h3>
+                    <select id="picker-rombel-select" class="text-xs p-2 rounded-xl border border-slate-300 w-full max-w-xs mx-auto block"></select>
+                    <div class="h-32 flex items-center justify-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-4">
+                        <span id="picker-display-name" class="text-xl font-bold text-emerald-600">Siap Mengundi...</span>
+                    </div>
+                    <button onclick="window.pickRandomStudent()" class="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow">Putar Undian</button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <h3 class="font-bold text-sm text-slate-800 border-b pb-2">👥 Pembagi Kelompok</h3>
+                    <div class="flex gap-2">
+                        <select id="group-rombel-select" class="text-xs p-2 rounded-xl border border-slate-300 flex-1"></select>
+                        <button onclick="window.generateClassGroups()" class="px-4 py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold">Bagi</button>
+                    </div>
+                    <div id="group-results-container" class="text-xs text-slate-500"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 9: MASTER DATA -->
+        <section id="tab-master" class="tab-pane hidden space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
+                    <h3 class="font-bold text-base text-slate-800">Data Siswa & Rombel</h3>
+                    <button onclick="window.openAddStudentModal()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">+ Tambah Siswa</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <h4 class="font-bold text-xs text-slate-700 mb-2">Rombel</h4>
+                            <div class="flex gap-1 mb-2">
+                                <input type="text" id="new-rombel-input" placeholder="Nama Rombel" class="text-xs p-1.5 rounded-lg border border-slate-300 flex-1">
+                                <button onclick="window.addNewRombel()" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold">+</button>
+                            </div>
+                            <ul id="master-rombel-list" class="space-y-1 text-xs text-slate-600"></ul>
+                        </div>
+                    </div>
+                    <div class="md:col-span-3">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-xs text-slate-700">Daftar Siswa</h4>
+                            <select id="filter-master-rombel" onchange="window.renderMasterStudentTable()" class="text-xs p-1 rounded-lg border border-slate-300"></select>
+                        </div>
+                        <div class="border border-slate-200 rounded-xl overflow-hidden">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-slate-100 text-slate-700 font-semibold text-[11px]">
+                                    <tr>
+                                        <th class="p-2.5 text-center w-10">No</th>
+                                        <th class="p-2.5">Nama Lengkap</th>
+                                        <th class="p-2.5">Panggilan</th>
+                                        <th class="p-2.5">Rombel</th>
+                                        <th class="p-2.5 text-center w-16">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="student-roster-tbody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL DOSSIER SISWA -->
+    <div id="student-dossier-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-emerald-600 text-white font-bold text-xl flex items-center justify-center" id="dossier-avatar">A</div>
+                    <div>
+                        <h3 class="font-bold text-base text-slate-800" id="dossier-name">Nama Siswa</h3>
+                        <p class="text-xs text-slate-500" id="dossier-sub">-</p>
+                    </div>
+                </div>
+                <button onclick="window.closeDossierModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="window.sendStudentWAReport()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">💬 Kirim Laporan WA</button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-700 mb-1">Akumulasi Presensi</h4>
+                    <p id="dossier-att-summary" class="text-slate-600">-</p>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-700 mb-1">Transkrip Nilai</h4>
+                    <div id="dossier-grades-table" class="space-y-1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SETTINGS -->
+    <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-bold text-base text-slate-800">Pengaturan & Backup</h3>
+                <button onclick="window.closeSettingsModal()" class="text-slate-400 font-bold">&times;</button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="font-medium text-slate-600">Nama Guru</label>
+                    <input type="text" id="setting-teacher-name" class="w-full mt-1 p-2 border rounded-xl">
+                </div>
+                <button onclick="window.saveGeneralSettings()" class="w-full py-2 bg-emerald-600 text-white rounded-xl font-bold">Simpan</button>
+                <hr>
+                <div class="flex gap-2">
+                    <button onclick="window.downloadFullBackupJSON()" class="flex-1 py-2 bg-slate-800 text-white rounded-xl font-bold">Unduh Backup JSON</button>
+                    <label class="flex-1 py-2 bg-teal-600 text-white rounded-xl font-bold text-center cursor-pointer">
+                        Pulihkan Data
+                        <input type="file" id="restore-json-input" accept=".json" class="hidden" onchange="window.restoreBackupJSON(event)">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CETAK F4 -->
+    <div id="full-report-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-4xl w-full p-6 shadow-2xl max-h-[95vh] overflow-y-auto space-y-4">
+            <div class="no-print flex items-center justify-between border-b pb-3">
+                <h3 class="font-bold text-sm text-slate-800">Pratinjau Dokumen F4</h3>
+                <div class="flex gap-2">
+                    <button onclick="window.print()" class="px-4 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-bold">🖨️ Cetak</button>
+                    <button onclick="window.closeFullReportModal()" class="text-slate-400 font-bold">&times;</button>
+                </div>
+            </div>
+            <div class="border p-6 rounded-xl bg-white text-black font-serif text-[11pt] space-y-4">
+                <div class="text-center border-b-4 border-double border-black pb-3">
+                    <h3 class="font-bold uppercase text-base" id="print-institution-header">YAYASAN PENDIDIKAN DARUL FALAH</h3>
+                    <h2 class="font-bold uppercase underline text-lg mt-1">BUKU KERJA GURU</h2>
+                </div>
+                <table class="w-full border-collapse border border-black text-[10pt] font-sans">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="border border-black p-1 text-center">No</th>
+                            <th class="border border-black p-1">Nama Siswa</th>
+                            <th class="border border-black p-1 text-center">Rombel</th>
+                        </tr>
+                    </thead>
+                    <tbody id="print-report-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TAMBAH SISWA -->
+    <div id="add-student-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-3">
+            <h3 class="font-bold text-sm text-slate-800 border-b pb-2">Tambah Siswa Baru</h3>
+            <div>
+                <label class="text-xs">Nama Lengkap</label>
+                <input type="text" id="new-student-name" class="w-full text-xs p-2 border rounded-xl mt-1">
+            </div>
+            <div>
+                <label class="text-xs">Nama Panggilan</label>
+                <input type="text" id="new-student-nickname" class="w-full text-xs p-2 border rounded-xl mt-1">
+            </div>
+            <div>
+                <label class="text-xs">Rombel</label>
+                <select id="new-student-rombel" class="w-full text-xs p-2 border rounded-xl mt-1"></select>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="window.saveNewStudent()" class="flex-1 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Simpan</button>
+                <button onclick="window.closeAddStudentModal()" class="flex-1 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const STORAGE_KEY = 'BukuKerjaGuru_DB_v2';
+        let appData = {
+            currentInst: 'MI',
+            currentTab: 'dasbor',
+            settings: { teacherName: 'Achmad Zainal Arifin, S.Pd.', headMI: 'Kepala MI', headMTS: 'Kepala MTs', city: 'Surabaya' },
+            MI: {
+                rombels: ['4A', '4B', '6A', '6B'],
+                mapels: ['Fiqih', 'Aqidah Akhlak', 'Nahwu', 'Shorof'],
+                kkms: { 'Fiqih': 75, 'Aqidah Akhlak': 75, 'Nahwu': 70, 'Shorof': 70 },
+                students: [
+                    { id: 'mi-1', name: 'Achmad Zakarya', nickname: 'Zaka', rombel: '4A' },
+                    { id: 'mi-2', name: 'Adinda Karunia Fitri', nickname: 'Adinda', rombel: '4A' }
+                ],
+                rekap: {}, attendance: {}, grades: {}, journals: [], schedules: [], behaviors: []
+            },
+            MTS: {
+                rombels: ['7.1', '7.2', '8.1', '8.2', '9.1'],
+                mapels: ['Fiqih', 'Nahwu', 'Shorof', 'Bahasa Arab'],
+                kkms: { 'Fiqih': 75, 'Nahwu': 72, 'Shorof': 72, 'Bahasa Arab': 75 },
+                students: [
+                    { id: 'mts-1', name: 'Jonathan Arya', nickname: 'Arya', rombel: '8.1' }
+                ],
+                rekap: {}, attendance: {}, grades: {}, journals: [], schedules: [], behaviors: []
+            }
+        };
+
+        function loadSavedDatabase() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try { appData = { ...appData, ...JSON.parse(saved) }; } catch (e) {}
+            }
+        }
+        function saveDatabase() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        }
+
+        window.setInstitution = function(inst) {
+            appData.currentInst = inst;
+            const isMI = inst === 'MI';
+            document.getElementById('inst-badge').textContent = inst;
+            document.getElementById('inst-badge').className = `w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm ${isMI ? 'bg-emerald-600' : 'bg-blue-600'}`;
+            document.getElementById('inst-label').textContent = isMI ? 'MI Darul Falah' : 'MTs Darul Falah';
+            document.getElementById('inst-label').className = `text-xs px-2 py-0.5 rounded-full font-semibold ${isMI ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}`;
+            
+            document.getElementById('btn-switch-mi').className = isMI ? 'px-3 py-1.5 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+            document.getElementById('btn-switch-mts').className = !isMI ? 'px-3 py-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition' : 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+
+            saveDatabase();
+            populateDropdowns();
+            renderCurrentTab();
+        };
+
+        window.switchTab = function(tabId) {
+            appData.currentTab = tabId;
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.className = 'nav-tab px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 whitespace-nowrap';
+            });
+            if (event && event.target) {
+                event.target.className = 'nav-tab active px-3 py-2 rounded-lg text-emerald-700 bg-emerald-50 whitespace-nowrap font-bold';
+            }
+
+            renderCurrentTab();
+        };
+
+        function renderCurrentTab() {
+            if (appData.currentTab === 'dasbor') renderDashboard();
+            if (appData.currentTab === 'rekap') window.loadRekapSheet();
+            if (appData.currentTab === 'presensi') window.loadAttendanceSheet();
+            if (appData.currentTab === 'nilai') window.loadGradeSheet();
+            if (appData.currentTab === 'jurnal') renderJournalList();
+            if (appData.currentTab === 'jadwal') renderSchedules();
+            if (appData.currentTab === 'sikap') renderBehaviors();
+            if (appData.currentTab === 'master') renderMasterLists();
+        }
+
+        function populateDropdowns() {
+            const inst = appData[appData.currentInst];
+            const rombelOpts = inst.rombels.map(r => `<option value="${r}">${r}</option>`).join('');
+            const mapelOpts = inst.mapels.map(m => `<option value="${m}">${m}</option>`).join('');
+
+            ['rekap-rombel-select', 'att-rombel-select', 'grade-rombel', 'journal-rombel', 'picker-rombel-select', 'group-rombel-select', 'filter-master-rombel', 'new-student-rombel'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = rombelOpts;
+            });
+            ['rekap-mapel-select', 'att-mapel-select', 'grade-mapel', 'journal-mapel'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = mapelOpts;
+            });
+
+            const bSelect = document.getElementById('behavior-student-select');
+            if (bSelect) {
+                bSelect.innerHTML = inst.students.map(s => `<option value="${s.id}">${s.name} (${s.rombel})</option>`).join('');
+            }
+        }
+
+        function renderDashboard() {
+            const inst = appData[appData.currentInst];
+            document.getElementById('stat-students').textContent = inst.students.length;
+            document.getElementById('stat-rombel').textContent = inst.rombels.length;
+            document.getElementById('stat-journals').textContent = inst.journals.length;
+        }
+
+        window.loadRekapSheet = function() {
+            const rombel = document.getElementById('rekap-rombel-select').value;
+            const mapel = document.getElementById('rekap-mapel-select').value;
+            const inst = appData[appData.currentInst];
+            const key = `${rombel}_${mapel}`;
+            
+            if (!inst.rekap[key]) {
+                inst.rekap[key] = {
+                    dates: ['2026-10-26', '', ''],
+                    labels: ['Materi 1', 'Materi 2', 'UH 1'],
+                    data: {}
+                };
+            }
+            const rData = inst.rekap[key];
+            const students = inst.students.filter(s => s.rombel === rombel);
+
+            const table = document.getElementById('rekap-spreadsheet-table');
+            let html = `<thead><tr class="bg-teal-700 text-white font-semibold">
+                <th class="p-2.5 text-center w-10 border border-teal-800">No</th>
+                <th class="p-2.5 border border-teal-800">Nama Siswa</th>
+                <th class="p-2.5 border border-teal-800 text-center w-20">Panggilan</th>`;
+
+            rData.labels.forEach((lbl, colIdx) => {
+                html += `<th class="p-2 border border-teal-800 text-center min-w-[130px]">
+                    <input type="text" value="${lbl}" onchange="window.updateRekapLabel('${key}', ${colIdx}, this.value)" class="text-xs bg-teal-800 text-white font-bold p-1 rounded w-full text-center">
+                </th>`;
+            });
+            html += `</tr></thead><tbody class="divide-y divide-slate-100">`;
+
+            students.forEach((s, rowIdx) => {
+                if (!rData.data[s.id]) rData.data[s.id] = [];
+                html += `<tr class="hover:bg-slate-50">
+                    <td class="p-2 text-center text-slate-400 border">${rowIdx + 1}</td>
+                    <td class="p-2 font-medium text-emerald-800 cursor-pointer hover:underline border" onclick="window.openDossierModal('${s.id}')">👤 ${s.name}</td>
+                    <td class="p-2 text-center text-slate-500 border">${s.nickname || '-'}</td>`;
+
+                rData.labels.forEach((_, colIdx) => {
+                    const val = rData.data[s.id][colIdx] || '';
+                    html += `<td class="p-1 border text-center">
+                        <input type="text" value="${val}" onblur="window.saveRekapCell('${key}', '${s.id}', ${colIdx}, this.value)" class="w-full p-1.5 rounded border border-slate-200 text-center font-medium">
+                    </td>`;
+                });
+                html += `</tr>`;
+            });
+            html += `</tbody>`;
+            table.innerHTML = html;
+        };
+
+        window.updateRekapLabel = function(key, idx, val) {
+            appData[appData.currentInst].rekap[key].labels[idx] = val;
+            saveDatabase();
+        };
+        window.saveRekapCell = function(key, studentId, colIdx, val) {
+            const inst = appData[appData.currentInst];
+            if (!inst.rekap[key].data[studentId]) inst.rekap[key].data[studentId] = [];
+            inst.rekap[key].data[studentId][colIdx] = val;
+            saveDatabase();
+        };
+        window.addRekapMeetingColumn = function() {
+            const rombel = document.getElementById('rekap-rombel-select').value;
+            const mapel = document.getElementById('rekap-mapel-select').value;
+            const key = `${rombel}_${mapel}`;
+            const inst = appData[appData.currentInst];
+            if (inst.rekap[key]) {
+                const count = inst.rekap[key].labels.length + 1;
+                inst.rekap[key].labels.push(`Ptm ${count}`);
+                inst.rekap[key].dates.push('');
+                saveDatabase();
+                window.loadRekapSheet();
+            }
+        };
+
+        window.loadGradeSheet = function() {
+            const rombel = document.getElementById('grade-rombel').value;
+            const mapel = document.getElementById('grade-mapel').value;
+            const inst = appData[appData.currentInst];
+            const kkm = inst.kkms[mapel] || 75;
+            document.getElementById('grade-kkm-input').value = kkm;
+
+            const key = `${rombel}_${mapel}`;
+            if (!inst.grades[key]) inst.grades[key] = {};
+            const gData = inst.grades[key];
+            const students = inst.students.filter(s => s.rombel === rombel);
+
+            const tbody = document.getElementById('grade-tbody');
+            tbody.innerHTML = students.map((s, idx) => {
+                const g = gData[s.id] || { tugas: 80, uh: 75, pts: 80, pas: 80 };
+                const akhir = Math.round((g.tugas * 0.2) + (g.uh * 0.3) + (g.pts * 0.25) + (g.pas * 0.25));
+                const isTuntas = akhir >= kkm;
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-3 text-center text-slate-400">${idx + 1}</td>
+                    <td class="p-3 font-medium text-emerald-800">👤 ${s.name}</td>
+                    <td class="p-2 text-center"><input type="number" value="${g.tugas}" onchange="window.saveGradeVal('${key}', '${s.id}', 'tugas', this.value)" class="w-16 p-1 rounded border text-center"></td>
+                    <td class="p-2 text-center"><input type="number" value="${g.uh}" onchange="window.saveGradeVal('${key}', '${s.id}', 'uh', this.value)" class="w-16 p-1 rounded border text-center"></td>
+                    <td class="p-2 text-center"><input type="number" value="${g.pts}" onchange="window.saveGradeVal('${key}', '${s.id}', 'pts', this.value)" class="w-16 p-1 rounded border text-center"></td>
+                    <td class="p-2 text-center"><input type="number" value="${g.pas}" onchange="window.saveGradeVal('${key}', '${s.id}', 'pas', this.value)" class="w-16 p-1 rounded border text-center"></td>
+                    <td class="p-3 text-center font-bold text-slate-800">${akhir}</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isTuntas ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700'}">${isTuntas ? 'Tuntas' : 'Remedial'}</span></td>
+                </tr>`;
+            }).join('');
+        };
+        window.saveGradeVal = function(key, sId, type, val) {
+            const inst = appData[appData.currentInst];
+            if (!inst.grades[key][sId]) inst.grades[key][sId] = { tugas: 75, uh: 75, pts: 75, pas: 75 };
+            inst.grades[key][sId][type] = parseFloat(val) || 0;
+            saveDatabase();
+            window.loadGradeSheet();
+        };
+        window.updateKKM = function(val) {
+            const mapel = document.getElementById('grade-mapel').value;
+            appData[appData.currentInst].kkms[mapel] = parseInt(val) || 75;
+            saveDatabase();
+            window.loadGradeSheet();
+        };
+
+        let attMode = 'input';
+        window.toggleAttendanceMode = function(mode) {
+            attMode = mode;
+            window.loadAttendanceSheet();
+        };
+        window.loadAttendanceSheet = function() {
+            const rombel = document.getElementById('att-rombel-select').value;
+            const mapel = document.getElementById('att-mapel-select').value;
+            const inst = appData[appData.currentInst];
+            const students = inst.students.filter(s => s.rombel === rombel);
+            const date = document.getElementById('attendance-date').value || '2026-10-26';
+
+            const thead = document.getElementById('attendance-table-thead');
+            const tbody = document.getElementById('attendance-tbody');
+
+            thead.innerHTML = `<tr><th class="p-3 w-12 text-center">No</th><th class="p-3">Nama Lengkap</th><th class="p-3 text-center w-24">Panggilan</th><th class="p-3 text-center w-48">Status Hadir</th></tr>`;
+            const key = `${date}_${rombel}_${mapel}`;
+            if (!inst.attendance[key]) inst.attendance[key] = {};
+            tbody.innerHTML = students.map((s, idx) => {
+                const status = inst.attendance[key][s.id] || 'H';
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-3 text-center text-slate-400">${idx+1}</td>
+                    <td class="p-3 font-medium text-emerald-800">👤 ${s.name}</td>
+                    <td class="p-3 text-center text-slate-500">${s.nickname || '-'}</td>
+                    <td class="p-3 text-center">
+                        <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 gap-1">
+                            ${['H', 'S', 'I', 'A'].map(opt => `<button onclick="window.setAttStatus('${key}', '${s.id}', '${opt}')" class="px-2.5 py-1 text-xs rounded font-bold ${status === opt ? 'bg-emerald-600 text-white' : 'text-slate-600'}">${opt}</button>`).join('')}
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        };
+        window.setAttStatus = function(key, sId, st) {
+            appData[appData.currentInst].attendance[key][sId] = st;
+            saveDatabase();
+            window.loadAttendanceSheet();
+        };
+        window.setAllPresent = function() {
+            const rombel = document.getElementById('att-rombel-select').value;
+            const mapel = document.getElementById('att-mapel-select').value;
+            const date = document.getElementById('attendance-date').value || '2026-10-26';
+            const inst = appData[appData.currentInst];
+            const key = `${date}_${rombel}_${mapel}`;
+            if (!inst.attendance[key]) inst.attendance[key] = {};
+            inst.students.filter(s => s.rombel === rombel).forEach(s => inst.attendance[key][s.id] = 'H');
+            saveDatabase();
+            window.loadAttendanceSheet();
+        };
+
+        function renderJournalList() {
+            const inst = appData[appData.currentInst];
+            const container = document.getElementById('journal-list-container');
+            container.innerHTML = inst.journals.length === 0 ? '<p>Belum ada catatan jurnal.</p>' :
+                inst.journals.map(j => `<div class="p-2 border rounded">${j.date} - ${j.rombel} (${j.mapel}): ${j.topic}</div>`).join('');
+        }
+        window.saveJournalEntry = function() {
+            const date = document.getElementById('journal-date').value;
+            const rombel = document.getElementById('journal-rombel').value;
+            const mapel = document.getElementById('journal-mapel').value;
+            const topic = document.getElementById('journal-topic').value;
+            if (!topic) return alert('Materi wajib diisi');
+            appData[appData.currentInst].journals.unshift({ date, rombel, mapel, topic });
+            saveDatabase();
+            renderJournalList();
+            alert('Jurnal berhasil disimpan!');
+        };
+
+        function renderSchedules() {}
+        function renderBehaviors() {}
+        function renderMasterLists() {
+            renderMasterStudentTable();
+            const rombelList = document.getElementById('master-rombel-list');
+            const inst = appData[appData.currentInst];
+            rombelList.innerHTML = inst.rombels.map(r => `<li>• ${r}</li>`).join('');
+        }
+        window.renderMasterStudentTable = function() {
+            const rombel = document.getElementById('filter-master-rombel').value;
+            const inst = appData[appData.currentInst];
+            const students = inst.students.filter(s => s.rombel === rombel);
+            const tbody = document.getElementById('student-roster-tbody');
+            tbody.innerHTML = students.map((s, idx) => `<tr>
+                <td class="p-2 text-center">${idx+1}</td>
+                <td class="p-2 font-medium">${s.name}</td>
+                <td class="p-2">${s.nickname || '-'}</td>
+                <td class="p-2">${s.rombel}</td>
+                <td class="p-2 text-center"><button onclick="window.deleteStudent('${s.id}')" class="text-red-600 font-bold">Hapus</button></td>
+            </tr>`).join('');
+        };
+        window.deleteStudent = function(sId) {
+            const inst = appData[appData.currentInst];
+            inst.students = inst.students.filter(s => s.id !== sId);
+            saveDatabase();
+            renderMasterStudentTable();
+        };
+        window.addNewRombel = function() {
+            const val = document.getElementById('new-rombel-input').value.trim();
+            if (!val) return;
+            appData[appData.currentInst].rombels.push(val);
+            saveDatabase();
+            document.getElementById('new-rombel-input').value = '';
+            populateDropdowns();
+            renderMasterLists();
+        };
+
+        window.openAddStudentModal = function() {
+            document.getElementById('add-student-modal').classList.remove('hidden');
+        };
+        window.closeAddStudentModal = function() {
+            document.getElementById('add-student-modal').classList.add('hidden');
+        };
+        window.saveNewStudent = function() {
+            const name = document.getElementById('new-student-name').value;
+            const nickname = document.getElementById('new-student-nickname').value;
+            const rombel = document.getElementById('new-student-rombel').value;
+            if (!name) return alert('Nama wajib diisi');
+            const newId = 's_' + Date.now();
+            appData[appData.currentInst].students.push({ id: newId, name, nickname, rombel });
+            saveDatabase();
+            window.closeAddStudentModal();
+            renderMasterStudentTable();
+            alert('Siswa berhasil ditambahkan!');
+        };
+
+        window.openFullReportModal = function() {
+            const inst = appData[appData.currentInst];
+            document.getElementById('print-institution-header').textContent = appData.currentInst === 'MI' ? 'MI DARUL FALAH' : 'MTS DARUL FALAH';
+            const tbody = document.getElementById('print-report-tbody');
+            tbody.innerHTML = inst.students.map((s, idx) => `<tr>
+                <td class="border border-black p-1 text-center">${idx + 1}</td>
+                <td class="border border-black p-1 font-medium">${s.name}</td>
+                <td class="border border-black p-1 text-center">${s.rombel}</td>
+            </tr>`).join('');
+            document.getElementById('full-report-modal').classList.remove('hidden');
+        };
+        window.closeFullReportModal = function() {
+            document.getElementById('full-report-modal').classList.add('hidden');
+        };
+
+        window.openDossierModal = function(studentId) {
+            const inst = appData[appData.currentInst];
+            const s = inst.students.find(x => x.id === studentId);
+            if (!s) return;
+            window.activeDossierStudent = s;
+            document.getElementById('dossier-name').textContent = s.name;
+            document.getElementById('dossier-avatar').textContent = s.name.charAt(0);
+            document.getElementById('dossier-sub').textContent = `Panggilan: ${s.nickname || '-'} | Rombel: ${s.rombel}`;
+            document.getElementById('student-dossier-modal').classList.remove('hidden');
+        };
+        window.closeDossierModal = function() {
+            document.getElementById('student-dossier-modal').classList.add('hidden');
+        };
+        window.sendStudentWAReport = function() {
+            const s = window.activeDossierStudent;
+            if (!s) return;
+            const text = `Assalamu'alaikum Wr. Wb. Wali murid dari *${s.name}*, laporan belajar ananda terpantau aktif. Terima kasih.`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        };
+
+        window.downloadFullBackupJSON = function() {
+            const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Backup_BukuKerjaGuru.json`;
+            a.click();
+        };
+        window.restoreBackupJSON = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    appData = JSON.parse(evt.target.result);
+                    saveDatabase();
+                    alert('Data dipulihkan!');
+                    location.reload();
+                } catch (err) { alert('Format file salah'); }
+            };
+            reader.readAsText(file);
+        };
+        window.openSettingsModal = function() {
+            document.getElementById('setting-teacher-name').value = appData.settings.teacherName;
+            document.getElementById('settings-modal').classList.remove('hidden');
+        };
+        window.closeSettingsModal = function() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        };
+        window.saveGeneralSettings = function() {
+            appData.settings.teacherName = document.getElementById('setting-teacher-name').value;
+            saveDatabase();
+            window.closeSettingsModal();
+        };
+
+        window.pickRandomStudent = function() {
+            const rombel = document.getElementById('picker-rombel-select').value;
+            const inst = appData[appData.currentInst];
+            const students = inst.students.filter(s => s.rombel === rombel);
+            const display = document.getElementById('picker-display-name');
+            if (students.length === 0) { display.textContent = 'Kosong'; return; }
+            const rand = students[Math.floor(Math.random() * students.length)];
+            display.textContent = `🎯 ${rand.name}`;
+        };
+        window.generateClassGroups = function() {
+            alert('Fitur pembagian kelompok aktif.');
+        };
+        window.handleGlobalStudentSearch = function() {};
+
+        window.onload = function() {
+            loadSavedDatabase();
+            const today = new Date().toISOString().split('T')[0];
+            if (document.getElementById('journal-date')) document.getElementById('journal-date').value = today;
+            if (document.getElementById('attendance-date')) document.getElementById('attendance-date').value = today;
+            if (document.getElementById('behavior-date')) document.getElementById('behavior-date').value = today;
+
+            window.setInstitution(appData.currentInst || 'MI');
+        };
+    </script>
+</body>
+</html>
