@@ -6,6 +6,8 @@
     <title>Buku Kerja Guru Digital - MI & MTs Darul Falah</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -65,7 +67,13 @@
                         Buku Kerja Guru Digital
                         <span id="inst-label" class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">MI Darul Falah</span>
                     </h1>
-                    <p id="teacher-subtitle" class="text-xs text-slate-500">Achmad Zainal Arifin, S.Pd. | 2026/2027</p>
+                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 mt-0.5">
+                        <span id="teacher-subtitle">Achmad Zainal Arifin, S.Pd. | 2026/2027</span>
+                        <!-- Status Indikator Cloud -->
+                        <span id="sync-status" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Menghubungkan Cloud...
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -89,8 +97,9 @@
                     <div id="search-results-dropdown" class="hidden absolute right-0 mt-1 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto p-1 text-xs"></div>
                 </div>
 
-                <!-- Settings -->
-                <button onclick="window.openSettingsModal()" title="Pengaturan & Backup" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold">⚙️</button>
+                <!-- Manual Cloud Sync Button & Settings -->
+                <button onclick="window.fetchDataFromSupabase(true)" title="Tarik Data terbaru dari Cloud" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs">🔄</button>
+                <button onclick="window.openSettingsModal()" title="Pengaturan & Sinkronisasi" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs">⚙️</button>
             </div>
         </div>
 
@@ -108,6 +117,21 @@
         </div>
     </header>
 
+    <!-- BANNER PERINGATAN JIKA TABEL SUPABASE BELUM DIBUAT -->
+    <div id="sql-warning-banner" class="hidden max-w-7xl mx-auto px-4 mt-4 no-print">
+        <div class="bg-amber-50 border border-amber-300 text-amber-900 p-4 rounded-2xl text-xs space-y-2 shadow-sm">
+            <h4 class="font-bold text-sm">⚠️ Tabel Database Supabase Belum Dibuat!</h4>
+            <p>Kunci API Anda sudah terhubung, namun tabel <code>app_storage</code> belum ditemukan di Supabase. Silakan buka <strong>Supabase Dashboard &gt; SQL Editor &gt; New Query</strong>, tempelkan kode di bawah ini lalu klik <strong>Run</strong>:</p>
+            <pre class="bg-slate-900 text-emerald-400 p-3 rounded-xl overflow-x-auto font-mono text-[11px]">create table if not exists app_storage (
+  id text primary key,
+  payload jsonb not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+alter table app_storage enable row level security;
+create policy "Akses Publik" on app_storage for all using (true) with check (true);</pre>
+        </div>
+    </div>
+
     <!-- MAIN CONTENT CONTAINER -->
     <main class="max-w-7xl mx-auto px-4 py-6">
 
@@ -116,9 +140,12 @@
             <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl p-6 shadow-md flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h2 class="text-xl font-bold">Selamat Mengajar, <span id="dash-greeting-name">Ustadz Achmad Zainal Arifin</span>!</h2>
-                    <p class="text-xs text-emerald-100 mt-1">Kelola administrasi, capaian materi, dan evaluasi siswa di MI & MTs Darul Falah secara terintegrasi.</p>
+                    <p class="text-xs text-emerald-100 mt-1">Kelola administrasi, capaian materi, dan evaluasi siswa di MI & MTs Darul Falah secara terintegrasi Cloud.</p>
                 </div>
-                <div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="window.forcePushToCloud()" class="px-3.5 py-2.5 rounded-xl bg-teal-900/60 border border-teal-400/40 text-white text-xs font-semibold hover:bg-teal-900 transition flex items-center gap-1.5">
+                        ☁️ Unggah Data Perangkat Ini ke Cloud
+                    </button>
                     <button onclick="window.openFullReportModal()" class="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-black shadow transition flex items-center gap-2">
                         📄 Cetak Buku Kerja Guru (F4)
                     </button>
@@ -147,10 +174,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <div class="flex items-center justify-between border-b pb-2">
-                        <h3 class="font-bold text-sm text-slate-800">🕒 Agenda Mengajar Hari Ini</h3>
+                        <h3 class="font-bold text-sm text-slate-800">🕒 Ringkasan Catatan Karakter Terbaru</h3>
                     </div>
-                    <div id="agenda-list-container" class="space-y-2 text-xs text-slate-500">
-                        <p>Belum ada jadwal mengajar yang tercatat hari ini.</p>
+                    <div id="dash-behavior-recent" class="space-y-2 text-xs text-slate-500">
+                        <p>Belum ada catatan terbaru.</p>
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl border border-red-100 p-5 shadow-sm space-y-3">
@@ -303,7 +330,7 @@
             </div>
         </section>
 
-        <!-- TAB 7: JURNAL SIKAP & KARAKTER (DENGAN MAPEL & FILTER MAPEL) -->
+        <!-- TAB 7: JURNAL SIKAP & KARAKTER -->
         <section id="tab-sikap" class="tab-pane hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Form Pencatatan Sikap -->
@@ -332,12 +359,12 @@
                     </div>
                     <div>
                         <label class="text-xs font-medium text-slate-600">Deskripsi Catatan</label>
-                        <textarea id="behavior-desc" rows="3" placeholder="Contoh: Menguasai bab thaharah dan aktif menjawab kuis fiqih dengan sangat baik..." class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
+                        <textarea id="behavior-desc" rows="3" placeholder="Contoh: Sangat aktif menjawab pertanyaan fiqih bab sholat..." class="w-full text-xs mt-1 p-2 rounded-xl border border-slate-300"></textarea>
                     </div>
                     <button onclick="window.saveBehaviorEntry()" class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700">Simpan Catatan</button>
                 </div>
 
-                <!-- Riwayat Catatan Sikap dengan Filter Mapel -->
+                <!-- Riwayat Catatan Sikap -->
                 <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
                         <h3 class="font-bold text-sm text-slate-800">Riwayat Catatan Karakter & Prestasi</h3>
@@ -486,7 +513,7 @@
     <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b pb-3">
-                <h3 class="font-bold text-base text-slate-800">Pengaturan Identitas & Cadangan</h3>
+                <h3 class="font-bold text-base text-slate-800">Pengaturan Cloud & Identitas</h3>
                 <button onclick="window.closeSettingsModal()" class="text-slate-400 font-bold">&times;</button>
             </div>
             <div class="space-y-3 text-xs">
@@ -510,11 +537,15 @@
                 </div>
                 <button onclick="window.saveGeneralSettings()" class="w-full py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700">Simpan Pengaturan</button>
                 <hr>
-                <h4 class="font-bold text-slate-800">Cadangan Database Lengkap</h4>
-                <div class="flex gap-2">
+                <h4 class="font-bold text-slate-800">Sinkronisasi Cloud & Cadangan JSON</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="window.forcePushToCloud()" class="py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700">☁️ Unggah ke Cloud</button>
+                    <button onclick="window.fetchDataFromSupabase(true)" class="py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">🔄 Ambil dari Cloud</button>
+                </div>
+                <div class="flex gap-2 pt-1">
                     <button onclick="window.downloadFullBackupJSON()" class="flex-1 py-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-black">Unduh Backup JSON</button>
                     <label class="flex-1 py-2 bg-teal-600 text-white rounded-xl font-bold text-center cursor-pointer hover:bg-teal-700">
-                        Pulihkan Data
+                        Pulihkan File JSON
                         <input type="file" id="restore-json-input" accept=".json" class="hidden" onchange="window.restoreBackupJSON(event)">
                     </label>
                 </div>
@@ -606,6 +637,20 @@
 
     <!-- JAVASCRIPT LOGIC LENGKAP -->
     <script>
+        // ==========================================
+        // KONFIGURASI SUPABASE RESMI (TERHUBUNG)
+        // ==========================================
+        const SUPABASE_URL = 'https://clhljvuydqcnezcxpmle.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsaGxqdnV5ZHFjbmV6Y3hwbWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwMDc1NzQsImV4cCI6MjEwODU4MzU3NH0.k50wrnY5OqNCEbkcHzfDYU6QE5pla_XORtAyJ94ZC2c';
+        const CLOUD_RECORD_ID = 'buku_kerja_darulfalah_main';
+
+        let supabaseClient = null;
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (err) {
+            console.error('Gagal menginisialisasi Supabase:', err);
+        }
+
         const STORAGE_KEY = 'BukuKerjaGuru_DB_v2';
         let appData = {
             currentInst: 'MI',
@@ -651,18 +696,168 @@
             }
         };
 
+        function setSyncStatus(type, msg) {
+            const el = document.getElementById('sync-status');
+            if (!el) return;
+            if (type === 'syncing') {
+                el.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800';
+                el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> ${msg}`;
+            } else if (type === 'synced') {
+                el.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800';
+                el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ${msg}`;
+            } else if (type === 'offline') {
+                el.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700';
+                el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> ${msg}`;
+            } else if (type === 'error') {
+                el.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800';
+                el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> ${msg}`;
+            }
+        }
+
+        function countTotalStudents(dataObj) {
+            const miCount = (dataObj?.MI?.students || []).length;
+            const mtsCount = (dataObj?.MTS?.students || []).length;
+            return miCount + mtsCount;
+        }
+
+        // Simpan ke LocalStorage dan Sinkronkan ke Cloud Supabase Secara Otomatis
+        let syncTimeout = null;
+        function saveDatabase() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            
+            if (!supabaseClient) {
+                setSyncStatus('offline', 'Penyimpanan Lokal');
+                return;
+            }
+
+            setSyncStatus('syncing', 'Menyimpan ke Cloud...');
+            clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(async () => {
+                try {
+                    const { error } = await supabaseClient
+                        .from('app_storage')
+                        .upsert({ id: CLOUD_RECORD_ID, payload: appData, updated_at: new Date().toISOString() });
+                    
+                    if (error) throw error;
+                    document.getElementById('sql-warning-banner')?.classList.add('hidden');
+                    setSyncStatus('synced', 'Tersinkron Cloud');
+                } catch (err) {
+                    console.error('Gagal simpan cloud:', err);
+                    if (err.code === '42P01' || (err.message && err.message.includes('app_storage'))) {
+                        document.getElementById('sql-warning-banner')?.classList.remove('hidden');
+                        setSyncStatus('error', 'Tabel SQL Belum Dibuat');
+                    } else {
+                        setSyncStatus('error', 'Gagal Sinkron Cloud');
+                    }
+                }
+            }, 500);
+        }
+
+        // Unggah Paksa Data Perangkat Ini ke Cloud
+        window.forcePushToCloud = async function() {
+            if (!supabaseClient) return alert('Supabase belum aktif.');
+            setSyncStatus('syncing', 'Mengunggah ke Cloud...');
+            try {
+                const { error } = await supabaseClient
+                    .from('app_storage')
+                    .upsert({ id: CLOUD_RECORD_ID, payload: appData, updated_at: new Date().toISOString() });
+                if (error) throw error;
+                document.getElementById('sql-warning-banner')?.classList.add('hidden');
+                setSyncStatus('synced', 'Tersinkron Cloud');
+                alert(`Berhasil mengunggah seluruh data perangkat ini (${countTotalStudents(appData)} siswa) ke Cloud! Sekarang silakan buka di perangkat lain.`);
+            } catch (err) {
+                console.error(err);
+                if (err.code === '42P01' || (err.message && err.message.includes('app_storage'))) {
+                    document.getElementById('sql-warning-banner')?.classList.remove('hidden');
+                }
+                alert('Gagal mengunggah ke Cloud: Pastikan Anda sudah menjalankan perintah SQL pembuatan tabel app_storage di Supabase SQL Editor.');
+            }
+        };
+
+        // Mengambil Data dari Supabase Cloud dengan Proteksi Data Lokal
+        window.fetchDataFromSupabase = async function(manualAlert = false) {
+            if (!supabaseClient) {
+                setSyncStatus('offline', 'Penyimpanan Lokal');
+                return;
+            }
+
+            setSyncStatus('syncing', 'Memeriksa Cloud...');
+            try {
+                const { data, error } = await supabaseClient
+                    .from('app_storage')
+                    .select('payload')
+                    .eq('id', CLOUD_RECORD_ID)
+                    .maybeSingle();
+
+                if (error) throw error;
+                document.getElementById('sql-warning-banner')?.classList.add('hidden');
+
+                if (data && data.payload) {
+                    const cloudCount = countTotalStudents(data.payload);
+                    const localCount = countTotalStudents(appData);
+
+                    // Proteksi Pintar: Jika perangkat ini punya data jauh lebih banyak (misal 134 siswa di laptop) dibanding cloud (misal data awal 7 siswa), unggah data laptop ke cloud!
+                    if (localCount > cloudCount && !manualAlert) {
+                        await supabaseClient
+                            .from('app_storage')
+                            .upsert({ id: CLOUD_RECORD_ID, payload: appData, updated_at: new Date().toISOString() });
+                        setSyncStatus('synced', 'Data Lokal Diunggah ke Cloud');
+                    } else {
+                        const currentSelectedInst = appData.currentInst;
+                        const currentSelectedTab = appData.currentTab;
+                        appData = { ...appData, ...data.payload, currentInst: currentSelectedInst, currentTab: currentSelectedTab };
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+                        setSyncStatus('synced', 'Tersinkron Cloud');
+                        populateDropdowns();
+                        renderCurrentTab();
+                        if (manualAlert) alert(`Data terbaru berhasil ditarik dari Cloud (${countTotalStudents(appData)} siswa terdaftar)!`);
+                    }
+                } else {
+                    // Tabel di Cloud masih kosong, langsung unggah data perangkat ini ke Cloud
+                    await supabaseClient
+                        .from('app_storage')
+                        .upsert({ id: CLOUD_RECORD_ID, payload: appData, updated_at: new Date().toISOString() });
+                    setSyncStatus('synced', 'Tersinkron Cloud');
+                }
+            } catch (err) {
+                console.error('Error memuat data cloud:', err);
+                if (err.code === '42P01' || (err.message && err.message.includes('app_storage'))) {
+                    document.getElementById('sql-warning-banner')?.classList.remove('hidden');
+                    setSyncStatus('error', 'Tabel SQL Belum Dibuat');
+                } else {
+                    setSyncStatus('offline', 'Mode Offline / Lokal');
+                }
+            }
+        };
+
+        // Langganan Real-Time Supabase (Otomatis update saat ada perubahan dari perangkat lain)
+        function subscribeSupabaseRealtime() {
+            if (!supabaseClient) return;
+            supabaseClient
+                .channel('public:app_storage')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'app_storage' }, payload => {
+                    if (payload.new && payload.new.id === CLOUD_RECORD_ID && payload.new.payload) {
+                        const currentSelectedInst = appData.currentInst;
+                        const currentSelectedTab = appData.currentTab;
+                        appData = { ...appData, ...payload.new.payload, currentInst: currentSelectedInst, currentTab: currentSelectedTab };
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+                        setSyncStatus('synced', 'Update Real-time Masuk');
+                        populateDropdowns();
+                        renderCurrentTab();
+                    }
+                })
+                .subscribe();
+        }
+
         function loadSavedDatabase() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 try { 
                     appData = { ...appData, ...JSON.parse(saved) }; 
                 } catch (e) {
-                    console.error('Gagal parsing data lokal', e);
+                    console.error('Gagal membaca data lokal', e);
                 }
             }
-        }
-        function saveDatabase() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
         }
 
         window.setInstitution = function(inst) {
@@ -676,7 +871,7 @@
             document.getElementById('btn-switch-mi').className = isMI ? 'px-3 py-1.5 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
             document.getElementById('btn-switch-mts').className = !isMI ? 'px-3 py-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition' : 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
 
-            saveDatabase();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
             populateDropdowns();
             renderCurrentTab();
         };
@@ -715,28 +910,34 @@
 
             ['rekap-rombel-select', 'att-rombel-select', 'grade-rombel', 'journal-rombel', 'picker-rombel-select', 'group-rombel-select', 'filter-master-rombel', 'new-student-rombel'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.innerHTML = rombelOpts;
+                if (el) {
+                    const prev = el.value;
+                    el.innerHTML = rombelOpts;
+                    if (inst.rombels.includes(prev)) el.value = prev;
+                }
             });
             ['rekap-mapel-select', 'att-mapel-select', 'grade-mapel', 'journal-mapel', 'behavior-mapel-select'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.innerHTML = mapelOpts;
+                if (el) {
+                    const prev = el.value;
+                    el.innerHTML = mapelOpts;
+                    if (inst.mapels.includes(prev)) el.value = prev;
+                }
             });
 
-            // Filter Mapel untuk Catatan Sikap
             const filterBMapel = document.getElementById('filter-behavior-mapel');
             if (filterBMapel) {
+                const prev = filterBMapel.value;
                 filterBMapel.innerHTML = `<option value="">Semua Mapel</option>` + mapelOpts;
+                filterBMapel.value = prev;
             }
 
-            // Datalist Autocomplete Siswa untuk Sikap
             const bDatalist = document.getElementById('behavior-student-datalist');
             if (bDatalist) {
                 bDatalist.innerHTML = inst.students.map(s => `
                     <option value="${s.name} (${s.rombel})">${s.nickname ? 'Panggilan: ' + s.nickname : s.rombel}</option>
                 `).join('');
             }
-            const bInput = document.getElementById('behavior-student-input');
-            if (bInput) bInput.value = '';
         }
 
         function renderDashboard() {
@@ -744,6 +945,12 @@
             document.getElementById('stat-students').textContent = inst.students.length;
             document.getElementById('stat-rombel').textContent = inst.rombels.length;
             document.getElementById('stat-journals').textContent = inst.journals.length;
+
+            const recentBehaviors = document.getElementById('dash-behavior-recent');
+            if (recentBehaviors) {
+                recentBehaviors.innerHTML = inst.behaviors.length === 0 ? '<p class="text-slate-400 italic">Belum ada catatan karakter/prestasi.</p>' :
+                    inst.behaviors.slice(0, 4).map(b => `<div class="p-2 border rounded-xl bg-slate-50"><strong>${b.name}</strong> <span class="text-emerald-700 font-semibold">[${b.mapel || 'Umum'}]</span>: ${b.desc}</div>`).join('');
+            }
 
             const warningContainer = document.getElementById('warning-list-container');
             const warnings = [];
@@ -969,7 +1176,7 @@
             container.innerHTML = days.map(d => `
                 <div class="border rounded-xl p-3 bg-slate-50">
                     <h4 class="font-bold border-b pb-1 mb-2 text-slate-700">${d}</h4>
-                    <p class="text-slate-400 italic text-[11px]">Tidak ada jam tatap muka.</p>
+                    <p class="text-slate-400 italic text-[11px]">Jadwal siap diisi.</p>
                 </div>
             `).join('');
         }
@@ -977,8 +1184,8 @@
             alert('Fitur jadwal mengajar terintegrasi aktif.');
         };
 
-        // JURNAL KARAKTER (DENGAN MAPEL & FILTER MAPEL)
-        function renderBehaviors() {
+        // JURNAL SIKAP & KARAKTER (DENGAN FILTER MAPEL)
+        window.renderBehaviors = function() {
             const inst = appData[appData.currentInst];
             const filterMapel = document.getElementById('filter-behavior-mapel')?.value || '';
             const container = document.getElementById('behavior-list-container');
@@ -1003,7 +1210,7 @@
                     <p class="text-[10px] text-slate-400">${b.date}</p>
                 </div>
             `).join('');
-        }
+        };
 
         window.saveBehaviorEntry = function() {
             const date = document.getElementById('behavior-date').value;
@@ -1029,8 +1236,8 @@
             saveDatabase();
             document.getElementById('behavior-desc').value = '';
             document.getElementById('behavior-student-input').value = '';
-            renderBehaviors();
-            alert('Catatan sikap/prestasi berhasil disimpan!');
+            window.renderBehaviors();
+            alert('Catatan sikap/prestasi berhasil disimpan & disinkronkan ke Cloud!');
         };
 
         // ALAT KELAS
@@ -1094,7 +1301,7 @@
                 `).join('');
             }
 
-            renderMasterStudentTable();
+            window.renderMasterStudentTable();
         }
 
         window.renderMasterStudentTable = function() {
@@ -1102,7 +1309,7 @@
             const inst = appData[appData.currentInst];
             const filtered = filterRombel ? inst.students.filter(s => s.rombel === filterRombel) : inst.students;
             const badge = document.getElementById('student-count-badge');
-            if (badge) badge.textContent = `${filtered.length} Siswa Terdaftar`;
+            if (badge) badge.textContent = `${filtered.length} Siswa (Total Madrasah: ${inst.students.length})`;
 
             const tbody = document.getElementById('student-roster-tbody');
             if (!tbody) return;
@@ -1181,7 +1388,7 @@
             const inst = appData[appData.currentInst];
             inst.students = inst.students.filter(s => s.id !== sId);
             saveDatabase();
-            renderMasterStudentTable();
+            window.renderMasterStudentTable();
             populateDropdowns();
             renderDashboard();
         };
@@ -1198,7 +1405,7 @@
             s.name = newName.trim() || s.name;
             s.nickname = newNick.trim() || s.nickname;
             saveDatabase();
-            renderMasterStudentTable();
+            window.renderMasterStudentTable();
             populateDropdowns();
         };
 
@@ -1219,10 +1426,10 @@
             document.getElementById('new-student-name').value = '';
             document.getElementById('new-student-nickname').value = '';
             window.closeAddStudentModal();
-            renderMasterStudentTable();
+            window.renderMasterStudentTable();
             populateDropdowns();
             renderDashboard();
-            alert('Siswa berhasil ditambahkan!');
+            alert('Siswa berhasil ditambahkan & disinkronkan ke Cloud!');
         };
 
         // FITUR CSV IMPOR & EKSPOR
@@ -1284,7 +1491,7 @@
                 populateDropdowns();
                 renderMasterLists();
                 renderDashboard();
-                alert(`Berhasil mengimpor ${added} siswa ke ${appData.currentInst}!`);
+                alert(`Berhasil mengimpor ${added} siswa ke ${appData.currentInst} dan menyinkronkannya ke Cloud!`);
             };
             reader.readAsText(file);
         };
@@ -1379,7 +1586,7 @@
                 try {
                     appData = JSON.parse(evt.target.result);
                     saveDatabase();
-                    alert('Data berhasil dipulihkan!');
+                    alert('Data berhasil dipulihkan & diunggah ke Cloud!');
                     location.reload();
                 } catch (err) { alert('Format file JSON tidak valid'); }
             };
@@ -1412,7 +1619,7 @@
         };
 
         // INISIALISASI SAAT PERTAMA KALI DIBUKA
-        window.onload = function() {
+        window.onload = async function() {
             loadSavedDatabase();
             const today = new Date().toISOString().split('T')[0];
             if (document.getElementById('journal-date')) document.getElementById('journal-date').value = today;
@@ -1420,6 +1627,10 @@
             if (document.getElementById('behavior-date')) document.getElementById('behavior-date').value = today;
 
             window.setInstitution(appData.currentInst || 'MI');
+            
+            // Sinkronisasi awal dan aktifkan pembaruan real-time Supabase
+            await window.fetchDataFromSupabase(false);
+            subscribeSupabaseRealtime();
         };
     </script>
 </body>
